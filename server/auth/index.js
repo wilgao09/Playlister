@@ -15,9 +15,9 @@ function authManager() {
                 });
             }
             console.log("verify the cookie");
-            const verified = jwt.verify(token, process.env.JWT_SECRET);
+            const verified = jwt.verify(token, config.jwtSecret);
             console.log("verified.userId: " + verified.userId);
-            req.userId = verified.userId;
+            req.username = verified.userId;
             next();
         } catch (err) {
             console.error(err);
@@ -36,8 +36,10 @@ function authManager() {
             if (!token) {
                 return null;
             }
-
-            const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+            // console.log("about to decode???");
+            const decodedToken = jwt.verify(token, config.jwtSecret);
+            // console.log("decoded token");
+            // console.log(decodedToken);
             return decodedToken.userId;
         } catch (err) {
             return null;

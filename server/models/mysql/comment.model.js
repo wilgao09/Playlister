@@ -22,9 +22,9 @@ Comment.belongsTo(Playlist, {
     targetKey: "_id",
 });
 
-Like.belongsTo(User, {
-    foreignKey: "user_id",
-    targetKey: "_id",
+Comment.belongsTo(User, {
+    foreignKey: "username",
+    targetKey: "username",
 });
 
-module.exports = Like;
+module.exports = Comment;

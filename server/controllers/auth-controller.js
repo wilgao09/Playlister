@@ -1,7 +1,8 @@
 const auth = require("../auth/index");
 const User = require("../models/mysql/user.model");
 const bcrypt = require("bcryptjs");
-const { Op } = require("sequelize");
+const log = require("loglevel");
+// const { isColString } = require("sequelize/types/utils");
 
 getLoggedIn = (req, res) => {
     console.log();
@@ -11,7 +12,7 @@ registerUser = async (req, res) => {
     try {
         const { username, firstName, lastName, email, password, password2 } =
             req.body;
-        console.log(
+        log.debug(
             "create user: " +
                 firstName +
                 " " +
@@ -35,26 +36,26 @@ registerUser = async (req, res) => {
                 .status(400)
                 .json({ errorMessage: "Please enter all required fields." });
         }
-        console.log("all fields provided");
+        log.debug("all fields provided");
         if (password.length < 8) {
             return res.status(400).json({
                 errorMessage:
                     "Please enter a password of at least 8 characters.",
             });
         }
-        console.log("password long enough");
+        log.debug("password long enough");
         if (password !== password2) {
             return res.status(400).json({
                 errorMessage: "Please enter the same password twice.",
             });
         }
-        console.log("password and password verify match");
+        log.debug("password and password verify match");
         let existingUser = await User.findOne({
             where: {
                 email: email,
             },
         });
-        console.log("existingUser: " + existingUser);
+        log.debug("existingUser: " + existingUser);
         if (existingUser) {
             return res.status(400).json({
                 success: false,
@@ -67,7 +68,7 @@ registerUser = async (req, res) => {
                 username: username,
             },
         });
-        console.log("existingUser: " + existingUser);
+        log.debug("existingUser: " + existingUser);
         if (existingUser) {
             return res.status(400).json({
                 success: false,
@@ -78,7 +79,7 @@ registerUser = async (req, res) => {
         const saltRounds = 10;
         const salt = await bcrypt.genSalt(saltRounds);
         const passwordHash = await bcrypt.hash(password, salt);
-        console.log("passwordHash: " + passwordHash);
+        log.info("passwordHash: " + passwordHash);
 
         const savedUser = await User.create({
             email: email,
@@ -87,11 +88,11 @@ registerUser = async (req, res) => {
             password_hash: passwordHash,
             username: username,
         });
-        console.log("new user saved: " + savedUser._id);
+        log.debug("new user saved: " + savedUser.username);
 
         // LOGIN THE USER
-        const token = auth.signToken(savedUser._id);
-        console.log("token:" + token);
+        const token = auth.signToken(savedUser.username);
+        log.debug("token:" + token);
 
         await res
             .cookie("token", token, {
@@ -105,7 +106,7 @@ registerUser = async (req, res) => {
                 user: savedUser.dataValues,
             });
 
-        console.log("token sent");
+        log.info("token sent");
     } catch (err) {
         console.error(err);
         res.status(500).send();
@@ -116,10 +117,10 @@ registerUser = async (req, res) => {
  * inspect if the jwt is valid
  */
 getLoggedIn = async (req, res) => {
-    console.log("IN GET LOGGED IN");
+    log.debug("IN GET LOGGED IN");
     try {
         let userId = auth.verifyUser(req);
-        console.log("ID: " + userId);
+        log.debug("ID: " + userId);
         if (!userId) {
             return res.status(200).json({
                 loggedIn: false,
@@ -129,7 +130,7 @@ getLoggedIn = async (req, res) => {
         }
 
         const loggedInUser = await User.findByPk(userId);
-        console.log("loggedInUser: " + loggedInUser);
+        log.debug("loggedInUser: " + loggedInUser);
 
         return res.status(200).json({
             loggedIn: true,
@@ -141,13 +142,13 @@ getLoggedIn = async (req, res) => {
             },
         });
     } catch (err) {
-        console.log("err: " + err);
+        log.error("err: " + err);
         res.json(false);
     }
 };
 
 loginUser = async (req, res) => {
-    console.log("loginUser");
+    log.debug("loginUser");
     try {
         const { email, password } = req.body;
 
@@ -160,28 +161,28 @@ loginUser = async (req, res) => {
         const existingUser = await User.findOne({
             where: { email: email },
         });
-        console.log("existingUser: " + existingUser);
+        log.debug("existingUser: " + existingUser);
         if (!existingUser) {
             return res.status(401).json({
                 errorMessage: "Wrong email or password provided.",
             });
         }
 
-        console.log("provided password: " + password);
+        log.debug("provided password: " + password);
         const passwordCorrect = await bcrypt.compare(
             password,
             existingUser.password_hash
         );
         if (!passwordCorrect) {
-            console.log("Incorrect password");
+            log.error("Incorrect password");
             return res.status(401).json({
                 errorMessage: "Wrong email or password provided.",
             });
         }
 
         // LOGIN THE USER
-        const token = auth.signToken(existingUser._id);
-        console.log(token);
+        const token = auth.signToken(existingUser.username);
+        log.debug(token);
 
         res.cookie("token", token, {
             httpOnly: true,
@@ -199,7 +200,7 @@ loginUser = async (req, res) => {
                 },
             });
     } catch (err) {
-        console.error(err);
+        log.error(err);
         res.status(500).send();
     }
 };

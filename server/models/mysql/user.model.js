@@ -5,9 +5,13 @@ const sequelize = require("./sequelize");
 let User = null;
 // create users table
 User = sequelize.define("users", {
-    _id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
+    // _id: {
+    //     type: DataTypes.INTEGER,
+    //     autoIncrement: true,
+    //     primaryKey: true,
+    // },
+    username: {
+        type: DataTypes.STRING,
         primaryKey: true,
     },
     email: {
@@ -24,14 +28,11 @@ User = sequelize.define("users", {
     password_hash: {
         type: DataTypes.STRING,
     },
-    username: {
-        type: DataTypes.STRING,
-    },
 });
 
 User.hasMany(Playlist, {
     foreignKey: "owner",
-    sourceKey: "_id",
+    sourceKey: "username",
 });
 
 module.exports = User;

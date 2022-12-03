@@ -5,12 +5,21 @@ var logger = require("morgan");
 
 var indexRouter = require("./routes/index");
 var authRouter = require("./routes/auth-router");
+var apiRouter = require("./routes/api-router");
+
+require("loglevel").setLevel("DEBUG");
 
 /**
  * MySQL setup
  */
 
 let sequelize = require("./models/mysql/sequelize");
+let usermodel = require("./models/mysql/user.model");
+let playlistmodel = require("./models/mysql/playlist.model");
+let likesmodel = require("./models/mysql/likes.model");
+let plsmodel = require("./models/mysql/pls.model");
+let commentsmodel = require("./models/mysql/comment.model");
+let songsmodel = require("./models/mysql/song.model");
 sequelize.sync();
 
 var app = express();
@@ -23,5 +32,6 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
 app.use("/auth", authRouter);
+app.use("/api", apiRouter);
 
 module.exports = app;

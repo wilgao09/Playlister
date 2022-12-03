@@ -15,6 +15,12 @@ Playlist = sequelize.define("playlists", {
     name: {
         type: DataTypes.STRING,
     },
+    listens: {
+        type: DataTypes.INTEGER,
+    },
+    published: {
+        type: DataTypes.BOOLEAN,
+    },
 });
 
 // Playlist.belongsTo(User, {

@@ -23,8 +23,8 @@ Like.belongsTo(Playlist, {
 });
 
 Like.belongsTo(User, {
-    foreignKey: "user_id",
-    targetKey: "_id",
+    foreignKey: "username",
+    targetKey: "username",
 });
 
 module.exports = Like;
