@@ -1,0 +1,63 @@
+#container {
+    display: grid;
+    grid-template-columns: 70% 30%;
+    grid-template-rows: 100%;
+    width: 100%;
+    height: 100%;
+}
+
+#left-splash {
+    background: linear-gradient(rgb(93, 78, 109), rgb(151, 141, 154));
+    grid-area: 1/1/2/2;
+    width: 100%;
+    height: 100%;
+}
+
+#banner {
+    /* position: absolute; */
+    margin-top: 15%;
+    /* left: 0%; */
+    width: 100%;
+    text-align: center;
+}
+
+#credits {
+    position: absolute;
+    top: 0%;
+    left: 0%;
+    color: rgb(201, 201, 201);
+    font-size: 14pt;
+}
+
+.title {
+    color: rgb(165, 0, 0);
+    font-size: 42pt;
+    font-family: "playlister-font";
+}
+
+h2,
+h4 {
+    color: rgb(201, 201, 201);
+}
+
+#right-splash {
+    background-color: rgb(189, 189, 255);
+    grid-area: 1/2/2/3;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+
+#right-splash > button {
+    background-color: rgb(79, 52, 90);
+    color: rgb(201, 201, 201);
+    border-color: rgb(135, 135, 135);
+    font-size: 24pt;
+    width: 60%;
+    margin-left: auto;
+    margin-right: auto;
+    height: 16%;
+    border-radius: 8px;
+}
