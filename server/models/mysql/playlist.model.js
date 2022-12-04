@@ -3,6 +3,7 @@ const log = require("loglevel");
 const sequelize = require("./sequelize");
 const User = require("./user.model");
 const Pls = require("./pls.model");
+const Like = require("./like.model");
 let Playlist = null;
 // create users table
 
@@ -30,6 +31,12 @@ Playlist = sequelize.define("playlists", {
 Playlist.hasMany(Pls, {
     foreignKey: "in",
     targetKey: "_id",
+});
+
+Playlist.hasMany(Like, {
+    foreignKey: "playlist_id",
+    targetKey: "_id",
+    as: "likes",
 });
 
 module.exports = Playlist;

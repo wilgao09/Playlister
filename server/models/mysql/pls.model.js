@@ -1,8 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("./sequelize");
-
 const Song = require("./song.model");
-const Playlist = require("./playlist.model");
 
 let Pls = null;
 // create users table

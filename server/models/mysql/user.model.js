@@ -1,4 +1,5 @@
 const { DataTypes } = require("sequelize");
+const Like = require("./like.model");
 const Playlist = require("./playlist.model");
 const sequelize = require("./sequelize");
 
@@ -32,6 +33,11 @@ User = sequelize.define("users", {
 
 User.hasMany(Playlist, {
     foreignKey: "owner",
+    sourceKey: "username",
+});
+
+User.hasMany(Like, {
+    foreignKey: "username",
     sourceKey: "username",
 });
 

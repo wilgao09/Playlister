@@ -1,4 +1,5 @@
 const { DataTypes } = require("sequelize");
+// const Pls = require("./pls.model");
 const sequelize = require("./sequelize");
 
 let Song = null;
@@ -22,5 +23,11 @@ Song = sequelize.define("songs", {
         type: DataTypes.INTEGER,
     },
 });
+
+// Song.hasMany(Pls, {
+//     foreignKey: "song_id",
+//     targetKey: "_id",
+//     as: "song",
+// });
 
 module.exports = Song;

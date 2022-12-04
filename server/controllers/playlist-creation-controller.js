@@ -4,6 +4,7 @@ const log = require("loglevel");
 
 const { Op } = require("sequelize");
 
+//TODO: FINISH
 const findNextSuitableName = (username, samplename, failOnFirst = false) => {
     let match = samplename.match(/^(.*) (\(([0-9]+)\))?$/);
     let name = match ? match[0] : samplename;
@@ -55,10 +56,10 @@ const findNextSuitableName = (username, samplename, failOnFirst = false) => {
     );
 };
 
-setTimeout(async () => {
-    console.log(await findNextSuitableName("xolaani", "BestList"));
-    console.log("ANSWER^^^^^^^");
-}, 1000);
+// setTimeout(async () => {
+//     console.log(await findNextSuitableName("xolaani", "BestList"));
+//     console.log("ANSWER^^^^^^^");
+// }, 1000);
 
 const createPlaylist = (req, res, next) => {
     if (!req.username || !req.body.name) {

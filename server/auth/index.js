@@ -2,12 +2,13 @@ const jwt = require("jsonwebtoken");
 const config = require("../../config.json");
 
 function authManager() {
-    verify = (req, res, next) => {
+    verify = (req, res, next, optional = false) => {
         try {
             const token = req.cookies.token;
             console.log("req.cookies looks like");
             console.log(req.cookies);
             if (!token) {
+                if (optional) return next();
                 return res.status(401).json({
                     loggedIn: false,
                     user: null,
@@ -21,7 +22,10 @@ function authManager() {
             next();
         } catch (err) {
             console.error(err);
-            return res.status(401).json({
+            if (optional) {
+                return next();
+            }
+            return res.status(403).json({
                 loggedIn: false,
                 user: null,
                 errorMessage: "Unauthorized",

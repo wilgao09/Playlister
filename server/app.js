@@ -7,7 +7,7 @@ var indexRouter = require("./routes/index");
 var authRouter = require("./routes/auth-router");
 var apiRouter = require("./routes/api-router");
 
-require("loglevel").setLevel("DEBUG");
+require("loglevel").setLevel("debug");
 
 /**
  * MySQL setup
@@ -16,7 +16,7 @@ require("loglevel").setLevel("DEBUG");
 let sequelize = require("./models/mysql/sequelize");
 let usermodel = require("./models/mysql/user.model");
 let playlistmodel = require("./models/mysql/playlist.model");
-let likesmodel = require("./models/mysql/likes.model");
+let likemodel = require("./models/mysql/like.model");
 let plsmodel = require("./models/mysql/pls.model");
 let commentsmodel = require("./models/mysql/comment.model");
 let songsmodel = require("./models/mysql/song.model");

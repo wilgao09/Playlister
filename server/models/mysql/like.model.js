@@ -1,8 +1,8 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("./sequelize");
 
-const User = require("./user.model");
-const Playlist = require("./playlist.model");
+// const User = require("./user.model");
+// const Playlist = require("./playlist.model");
 
 let Like = null;
 // create users table
@@ -17,14 +17,14 @@ Like = sequelize.define("likes", {
     },
 });
 
-Like.belongsTo(Playlist, {
-    foreignKey: "playlist_id",
-    targetKey: "_id",
-});
+// Like.belongsTo(Playlist, {
+//     foreignKey: "playlist_id",
+//     targetKey: "_id",
+// });
 
-Like.belongsTo(User, {
-    foreignKey: "username",
-    targetKey: "username",
-});
+// Like.belongsTo(User, {
+//     foreignKey: "username",
+//     targetKey: "username",
+// });
 
 module.exports = Like;
