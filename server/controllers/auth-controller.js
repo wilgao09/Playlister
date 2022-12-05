@@ -9,6 +9,7 @@ getLoggedIn = (req, res) => {
 };
 
 registerUser = async (req, res) => {
+    console.log("?????");
     try {
         const { username, firstName, lastName, email, password, password2 } =
             req.body;
@@ -103,7 +104,11 @@ registerUser = async (req, res) => {
             .status(200)
             .json({
                 success: true,
-                user: savedUser.dataValues,
+                user: {
+                    firstName: savedUser.dataValues.fname,
+                    lastName: savedUser.dataValues.lname,
+                    username: savedUser.dataValues.username,
+                },
             });
 
         log.info("token sent");
@@ -137,7 +142,7 @@ getLoggedIn = async (req, res) => {
             user: {
                 firstName: loggedInUser.fname,
                 lastName: loggedInUser.lname,
-                email: loggedInUser.email,
+                // email: loggedInUser.email,
                 username: loggedInUser.username,
             },
         });
@@ -196,7 +201,7 @@ loginUser = async (req, res) => {
                     username: existingUser.username,
                     firstName: existingUser.fname,
                     lastName: existingUser.lname,
-                    email: existingUser.email,
+                    // email: existingUser.email,
                 },
             });
     } catch (err) {

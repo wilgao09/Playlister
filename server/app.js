@@ -9,6 +9,8 @@ var apiRouter = require("./routes/api-router");
 
 require("loglevel").setLevel("debug");
 
+let cors = require("cors");
+
 /**
  * MySQL setup
  */
@@ -23,6 +25,18 @@ let songsmodel = require("./models/mysql/song.model");
 sequelize.sync();
 
 var app = express();
+
+// var corsOptions = {
+//     origin: "http://localhost:3000",
+//     // optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+// };
+
+app.use(
+    cors({
+        origin: "http://localhost:3000",
+        credentials: true,
+    })
+);
 
 app.use(logger("dev"));
 app.use(express.json());

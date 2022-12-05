@@ -1,0 +1,10 @@
+#central {
+    margin-left: auto;
+    margin-right: auto;
+    height: 100%;
+    width: 30%;
+
+    background-color: purple;
+    display: block;
+    text-align: center;
+}

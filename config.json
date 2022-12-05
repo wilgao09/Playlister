@@ -2,5 +2,6 @@
     "apiPort": "6689",
     "usingMySQL": true,
     "jwtSecret": ":r(4[CaQ3`N<#8EV~7<K75Rd/ZpfzBkv`m-x]+QnjQcXazr%w;",
-    "databasePassword": "toor"
+    "databasePassword": "toor",
+    "apiDomain": "localhost"
 }

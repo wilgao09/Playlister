@@ -1,0 +1,9 @@
+@font-face {
+    font-family: playlister-font;
+    src: url(Lobster-Regular.ttf);
+}
+
+.playlister-logo {
+    color: rgb(145, 0, 0);
+    font-family: "playlister-font";
+}

@@ -1,16 +1,12 @@
 import "./App.css";
 // import { React } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-// import { AuthContextProvider } from "./auth";
+import { AuthContextProvider } from "./auth";
 // import { GlobalStoreContextProvider } from "./store";
-// import {
-//     // AppBanner,
-//     HomeWrapper,
-//     // LoginScreen,
-//     // RegisterScreen,
-//     // Statusbar,
-// } from "./components";
+
 import HomeWrapper from "./components/HomeWrapper";
+import LoginScreen from "./components/LoginScreen";
+import RegisterScreen from "./components/RegisterScreen";
 
 /*
     This is our application's top-level component.
@@ -27,21 +23,17 @@ const App = (): JSX.Element => {
     return (
         // <div></div>
         <BrowserRouter>
-            {/* <AuthContextProvider>
-                <GlobalStoreContextProvider>
+            <AuthContextProvider>
+                {/* <GlobalStoreContextProvider>
                     <AppBanner /> */}
-            <Routes>
-                <Route path="/" element={<HomeWrapper />} />
-                {/* <Route path="/login/" exact component={LoginScreen} />
-                        <Route
-                            path="/register/"
-                            exact
-                            component={RegisterScreen}
-                        /> */}
-            </Routes>
-            {/* <Statusbar />
-                </GlobalStoreContextProvider>
-            </AuthContextProvider> */}
+                <Routes>
+                    <Route path="/" element={<HomeWrapper />} />
+                    <Route path="/login/" element={<LoginScreen />} />
+                    <Route path="/register/" element={<RegisterScreen />} />
+                </Routes>
+                {/* <Statusbar />
+                </GlobalStoreContextProvider> */}
+            </AuthContextProvider>
         </BrowserRouter>
     );
 };
