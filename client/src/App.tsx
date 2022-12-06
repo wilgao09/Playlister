@@ -2,7 +2,7 @@ import "./App.css";
 // import { React } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { AuthContextProvider } from "./auth";
-// import { GlobalStoreContextProvider } from "./store";
+import { GlobalStoreContextProvider } from "./store";
 
 import HomeWrapper from "./components/HomeWrapper";
 import LoginScreen from "./components/LoginScreen";
@@ -24,15 +24,15 @@ const App = (): JSX.Element => {
         // <div></div>
         <BrowserRouter>
             <AuthContextProvider>
-                {/* <GlobalStoreContextProvider>
-                    <AppBanner /> */}
-                <Routes>
-                    <Route path="/" element={<HomeWrapper />} />
-                    <Route path="/login/" element={<LoginScreen />} />
-                    <Route path="/register/" element={<RegisterScreen />} />
-                </Routes>
-                {/* <Statusbar />
-                </GlobalStoreContextProvider> */}
+                <GlobalStoreContextProvider>
+                    {/* <AppBanner /> */}
+                    <Routes>
+                        <Route path="/" element={<HomeWrapper />} />
+                        <Route path="/login/" element={<LoginScreen />} />
+                        <Route path="/register/" element={<RegisterScreen />} />
+                    </Routes>
+                    {/* <Statusbar /> */}
+                </GlobalStoreContextProvider>
             </AuthContextProvider>
         </BrowserRouter>
     );

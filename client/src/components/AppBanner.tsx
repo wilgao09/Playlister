@@ -8,7 +8,7 @@ import MenuItem from "@mui/material/MenuItem";
 import PlaylisterLogo from "./playlister.module.css";
 import AppBannerStyle from "./AppBanner.module.css";
 
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import AuthContext from "../auth";
 
@@ -41,6 +41,8 @@ function AppBanner() {
         // store.reset();
         auth.logoutUser();
     };
+
+    useEffect(() => console.log(auth));
 
     const menuId = AppBannerStyle["menu-id"];
     const loggedOutMenu = (

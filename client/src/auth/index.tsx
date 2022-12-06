@@ -144,7 +144,6 @@ function AuthContextProvider({ children }: JSX.ElementChildrenAttribute) {
         //     password,
         //     passwordVerify
         // );
-        alert("in register user");
         api.registerUser(
             username,
             firstName,

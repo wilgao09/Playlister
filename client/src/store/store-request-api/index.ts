@@ -11,9 +11,14 @@
 */
 
 import axios from "axios";
+//TODO: fix
+const config = {
+    apiPort: "6689",
+    apiDomain: "localhost",
+};
 axios.defaults.withCredentials = true;
 const api = axios.create({
-    baseURL: "http://localhost:4000/api",
+    baseURL: `http://${config.apiDomain}:${config.apiPort}/api`,
 });
 
 // THESE ARE ALL THE REQUESTS WE`LL BE MAKING, ALL REQUESTS HAVE A
@@ -37,6 +42,10 @@ export const updatePlaylistById = (id: Number, delta: Delta) => {
         delta: delta,
     });
 };
+export const renamePlaylist = (id: number, name: string) =>
+    api.put(`/playlist/rename/${id}`, {
+        body: name,
+    });
 
 const apis = {
     createPlaylist,
@@ -44,6 +53,7 @@ const apis = {
     getPlaylistById,
     getUserLists,
     updatePlaylistById,
+    renamePlaylist,
 };
 
 export default apis;

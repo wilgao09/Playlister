@@ -45,7 +45,6 @@ export const registerUser = (
     password: String,
     passwordVerify: String
 ) => {
-    alert("sending register request");
     console.log(api.post);
     return api.post(`/register/`, {
         username: username,

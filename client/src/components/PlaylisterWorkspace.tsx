@@ -1,4 +1,5 @@
 import AppBanner from "./AppBanner";
+import ListSpace from "./ListSpace";
 
 import PlaylisterTools from "./PlaylisterTools";
 
@@ -16,17 +17,16 @@ function PlaylisterWorkspace() {
                     width: "100%",
                 }}
             >
-                <div
-                    style={{
-                        height: "100%",
-                        width: "100%",
-                        backgroundColor: "yellow",
-                        gridTemplateColumns,
-                    }}
-                >
-                    YGUFBJKVJSVDFIDSHBHVJ VHDBFHJAKSVDJELAIHJDVHFDUZSFBWIHFVK
-                    ABKSFHC ZSKDGEfabVKZADSJGHKC DSZGVJHCXKZDJVC GHas
-                    xGADJcghXBC
+                <div className={PlaylisterWorkspaceStyle["workspace-grid"]}>
+                    <div className={PlaylisterWorkspaceStyle["list-space"]}>
+                        <ListSpace></ListSpace>
+                    </div>
+                    <div
+                        className={PlaylisterWorkspaceStyle["player-space"]}
+                    ></div>
+                    <div
+                        className={PlaylisterWorkspaceStyle["bar-space"]}
+                    ></div>
                 </div>
             </div>
         </>

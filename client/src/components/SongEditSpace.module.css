@@ -1,0 +1,23 @@
+.flex-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.song-card-unpublished {
+    width: 100%;
+    background-color: rosybrown;
+    border-radius: 8px;
+    padding: 4px;
+    font-size: 16pt;
+    cursor: pointer;
+    margin: 4px;
+}
+
+.song-card-published-container {
+    background-color: indigo;
+    color: gold;
+    font-size: 18pt;
+    padding: 8px;
+    border-radius: 8px;
+}

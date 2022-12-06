@@ -64,7 +64,7 @@ const getUserLists = (req, res, next) => {
             },
         })
     )
-        .then((data) => res.status(403).json({ playlists: data }))
+        .then((data) => res.status(200).json({ playlists: data }))
         .catch((reason) => res.status(404).json({ err: reason }));
 };
 
@@ -161,6 +161,16 @@ const getPlaylistById = (req, res, next) => {
     Playlist.findAll(stmt)
         .then((data) => {
             payload = data;
+            console.log("PAYLOADvvv");
+            console.log(payload);
+            //if it does not exist, or it is private to the user
+            if (
+                payload.length != 1 ||
+                (req.username !== payload[0].dataValues.owner &&
+                    !payload[0].dataValues.published)
+            ) {
+                throw "Could not find playlist";
+            }
             return Pls.findAll({
                 include: [
                     {
@@ -171,7 +181,7 @@ const getPlaylistById = (req, res, next) => {
                     },
                 ],
                 where: {
-                    in: 6,
+                    in: req.params.id,
                 },
                 attributes: [
                     [sequelize.col("song.title"), "title"],
@@ -182,14 +192,17 @@ const getPlaylistById = (req, res, next) => {
             });
         })
         .then((dat) => {
+            console.log("??????? got the query results");
             let tor = [];
             log.debug(dat);
             for (let s of dat) {
                 tor.push(s.dataValues);
             }
-            return res.status(200).json({ playlist: tor });
+            return res
+                .status(200)
+                .json({ playlist: tor, listinfo: payload[0].dataValues });
         })
-        .catch((reason) => res.status(500).json({ playlists: reason }));
+        .catch((reason) => res.status(500).json({ err: reason }));
 };
 
 // setTimeout(async () => {

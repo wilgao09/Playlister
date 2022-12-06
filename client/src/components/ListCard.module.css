@@ -1,0 +1,17 @@
+.list-card {
+    margin: 8px;
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.list-card-private {
+    background-color: white;
+}
+
+.list-card-published {
+    background-color: rgb(183, 221, 255);
+}
+
+.list-card-playing {
+    background-color: gold;
+}
