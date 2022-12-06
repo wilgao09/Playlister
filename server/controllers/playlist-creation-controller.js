@@ -129,8 +129,6 @@ const renamePlaylist = (req, res, next) => {
 
 const duplicatePlaylist = (req, res, next) => {
     let id = req.params.id;
-    console.log(req.params);
-    console.log(req);
     if (!req.username || !id) {
         return res.status(400).json({ err: "Missing information" });
     }

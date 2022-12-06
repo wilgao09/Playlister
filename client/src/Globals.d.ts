@@ -97,6 +97,11 @@ interface Store {
     removeSong: (index: number) => void;
     undo: () => void;
     redo: () => void;
+    duplicateList: () => void;
+    publishPlaylist: () => void;
+    moveSong: (start: number, end: number) => void;
+    raiseModal: (modal: CurrentModal, payload: any) => void;
+    editSong: (index: number, ndata: Song) => void;
 }
 
 interface Transaction {

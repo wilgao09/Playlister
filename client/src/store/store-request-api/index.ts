@@ -36,6 +36,12 @@ export const deletePlaylistById = (id: Number) => api.delete(`/playlist/${id}`);
 export const getPlaylistById = (id: Number) => api.get(`/playlist/${id}`);
 // export const getPlaylistPairs = () => api.get(`/playlistpairs/`);
 export const getUserLists = () => api.get(`/playlist`);
+
+export const searchByUsername = (name: string) =>
+    api.get(`/playlist/searchUser?name=${name}`);
+export const searchByPlaylist = (name: string) =>
+    api.get(`/playlist/searchPlaylist?name=${name}`);
+
 export const updatePlaylistById = (id: Number, delta: Delta) => {
     return api.put(`/playlist/contents/${id}`, {
         // SPECIFY THE PAYLOAD
@@ -47,6 +53,12 @@ export const renamePlaylist = (id: number, name: string) =>
         body: name,
     });
 
+export const publishPlaylist = (id: number) =>
+    api.post(`/playlist/publish/${id}`);
+
+export const duplicateList = (id: number) =>
+    api.post(`/playlist/duplicate/${id}`);
+
 const apis = {
     createPlaylist,
     deletePlaylistById,
@@ -54,6 +66,10 @@ const apis = {
     getUserLists,
     updatePlaylistById,
     renamePlaylist,
+    publishPlaylist,
+    duplicateList,
+    searchByPlaylist,
+    searchByUsername,
 };
 
 export default apis;

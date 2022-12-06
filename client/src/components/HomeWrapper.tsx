@@ -7,13 +7,23 @@ import { Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import AuthContext from "../auth";
+import GlobalStoreContext, { CurrentModal } from "../store";
+import ModalSwitch from "./ModalSwitch";
 
 function HomeWrapper(): JSX.Element {
     const navigate = useNavigate();
     const auth = useContext(AuthContext);
+    const store = useContext(GlobalStoreContext);
 
     if (auth.auth.isGuest || auth.auth.loggedIn) {
-        return <PlaylisterWorkspace></PlaylisterWorkspace>;
+        return (
+            <>
+                <PlaylisterWorkspace></PlaylisterWorkspace>
+                {store.store.currentModal !== CurrentModal.NONE && (
+                    <ModalSwitch />
+                )}
+            </>
+        );
     }
 
     return (

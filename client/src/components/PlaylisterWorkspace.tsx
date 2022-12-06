@@ -24,9 +24,9 @@ function PlaylisterWorkspace() {
                     <div
                         className={PlaylisterWorkspaceStyle["player-space"]}
                     ></div>
-                    <div
-                        className={PlaylisterWorkspaceStyle["bar-space"]}
-                    ></div>
+                    <div className={PlaylisterWorkspaceStyle["bar-space"]}>
+                        {/* <WorkspaceBar/> */}
+                    </div>
                 </div>
             </div>
         </>

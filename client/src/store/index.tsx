@@ -6,6 +6,8 @@ import tsTPS from "../common/tsTPS";
 
 import CreateSongTransaction from "../transactions/CreateSongTransaction";
 import RemoveSongTransaction from "../transactions/RemoveSongTransaction";
+import MoveSongTransaction from "../transactions/MoveSongTransaction";
+import EditSongTransaction from "../transactions/EditSongTransaction";
 
 /*
     This is our global data store. Note that it uses the Flux design pattern,
@@ -86,6 +88,11 @@ let initial__store: Store = {
     removeSong: (index: number) => {},
     undo: () => {},
     redo: () => {},
+    duplicateList: () => {},
+    publishPlaylist: () => {},
+    moveSong: (start: number, end: number) => {},
+    raiseModal: (modal: CurrentModal, payload: any) => {},
+    editSong: (index: number, ndata: Song) => {},
 };
 
 let GlobalStoreContext: React.Context<Store> =
@@ -236,7 +243,7 @@ function GlobalStoreContextProvider({
                 return setStore({
                     currentModal: CurrentModal.NONE,
                     currentlyLoadedLists: payload.listsData,
-                    currentListId: storeState.currentListId,
+                    currentListId: -100,
                     currentList: null,
                     searchQuery: storeState.searchQuery,
                     currentScreen: storeState.currentScreen,
@@ -386,8 +393,8 @@ function GlobalStoreContextProvider({
                     listNameToEdit: -100,
                     currentPlayingList: storeState.currentPlayingList,
                     currentPlayingSongIndex: storeState.currentPlayingSongIndex,
-                    currentSongIndex: payload.songIndex,
-                    currentSong: payload.song,
+                    currentSongIndex: -100,
+                    currentSong: null,
                     listToDelete: -100,
                     currentPlayingListId: storeState.currentPlayingListId,
                 });
@@ -591,41 +598,92 @@ function GlobalStoreContextProvider({
         return storeState.currentList.length;
     };
 
+    const publishPlaylist = function () {
+        let id = storeState.currentListId;
+        api.publishPlaylist(id).then((res) => {
+            if (res.status === 200) {
+                let playlists = [...storeState.currentlyLoadedLists].map(
+                    (x) => {
+                        if (x._id == id) {
+                            x.published = true;
+                        }
+                        return x;
+                    }
+                );
+                storeReducer({
+                    type: GlobalStoreActionType.LOAD_ID_NAME_PAIRS,
+                    payload: {
+                        listsData: playlists,
+                    },
+                });
+            }
+        });
+    };
+
+    //reretrieve the entire playlists;
+    //TODO: elegant
+    const reloadLists = function () {
+        let req;
+        if (storeState.currentScreen == CurrentScreen.HOME) {
+            req = () => api.getUserLists();
+        } else if (storeState.currentScreen == CurrentScreen.PLAYLISTS) {
+            req = () => api.searchByPlaylist(storeState.searchQuery);
+        } else {
+            req = () => api.searchByUsername(storeState.searchQuery);
+        }
+        req().then((res) => {
+            if (res.status === 200) {
+                console.log("PLAYLISTS RESPONSE IS");
+                console.log(res.data.playlists);
+                storeReducer({
+                    type: GlobalStoreActionType.LOAD_ID_NAME_PAIRS,
+                    payload: {
+                        listsData: res.data.playlists,
+                    },
+                });
+            }
+        });
+    };
+
+    const duplicateList = function () {
+        let id = storeState.currentListId;
+        api.duplicateList(id).then((res) => {
+            if (res.status === 201) {
+                reloadLists();
+            }
+        });
+    };
+
     // // THIS FUNCTION MOVES A SONG IN THE CURRENT LIST FROM
     // // start TO end AND ADJUSTS ALL OTHER ITEMS ACCORDINGLY
-    // store.moveSong = function (start, end) {
-    //     let list = store.currentList;
+    const _moveSong = function (start: number, end: number) {
+        let id = storeState.currentListId;
+        api.updatePlaylistById(id, {
+            type: "MOVE",
+            d0: start,
+            d1: end,
+        }).then((res) => {
+            if (res.status === 200) {
+                if (storeState.currentList == null) return;
+                let playlist = [...storeState.currentList];
+                let t = playlist.splice(start, 1);
+                playlist.splice(end, 0, t[0]);
 
-    //     // WE NEED TO UPDATE THE STATE FOR THE APP
-    //     if (start < end) {
-    //         let temp = list.songs[start];
-    //         for (let i = start; i < end; i++) {
-    //             list.songs[i] = list.songs[i + 1];
-    //         }
-    //         list.songs[end] = temp;
-    //     } else if (start > end) {
-    //         let temp = list.songs[start];
-    //         for (let i = start; i > end; i--) {
-    //             list.songs[i] = list.songs[i - 1];
-    //         }
-    //         list.songs[end] = temp;
-    //     }
+                console.log("before");
+                console.log(storeState.currentList);
+                console.log("after");
+                console.log(playlist);
+                storeReducer({
+                    type: GlobalStoreActionType.SET_CURRENT_LIST,
+                    payload: {
+                        listId: id,
+                        listData: playlist,
+                    },
+                });
+            }
+        });
+    };
 
-    //     // NOW MAKE IT OFFICIAL
-    //     store.updateCurrentList();
-    // };
-
-    // // THIS FUNCTION UPDATES THE TEXT IN THE ITEM AT index TO text
-    // store.updateSong = function (index, songData) {
-    //     let list = store.currentList;
-    //     let song = list.songs[index];
-    //     song.title = songData.title;
-    //     song.artist = songData.artist;
-    //     song.youTubeId = songData.youTubeId;
-
-    //     // NOW MAKE IT OFFICIAL
-    //     store.updateCurrentList();
-    // };
     // THIS FUNCTION CREATES A NEW SONG IN THE CURRENT LIST
     // USING THE PROVIDED DATA AND PUTS THIS SONG AT INDEX
     const createSong = function (index: number, song: Song) {
@@ -663,8 +721,30 @@ function GlobalStoreContextProvider({
             if (storeState.currentList === null) return;
             if (res.status === 200) {
                 let list = [...storeState.currentList];
-                if (list === null) return;
                 list.splice(index, 1);
+                storeReducer({
+                    type: GlobalStoreActionType.SET_CURRENT_LIST,
+                    payload: {
+                        listData: list,
+                        listId: listid,
+                    },
+                });
+            }
+        });
+    };
+
+    const _editSong = function (index: number, ndata: Song) {
+        let listid = storeState.currentListId;
+        api.updatePlaylistById(listid, {
+            type: DeltaType.EDIT,
+            d0: index,
+            d1: ndata,
+        }).then((res) => {
+            if (storeState.currentList === null) return;
+            if (res.status === 200) {
+                //TODO: maybe errors?
+                let list = [...storeState.currentList];
+                list[index] = ndata;
                 storeReducer({
                     type: GlobalStoreActionType.SET_CURRENT_LIST,
                     payload: {
@@ -714,53 +794,57 @@ function GlobalStoreContextProvider({
         );
     };
 
-    // store.addMoveSongTransaction = function (start, end) {
-    //     let transaction = new MoveSong_Transaction(store, start, end);
-    //     tps.addTransaction(transaction);
-    // };
-    // // THIS FUNCTION ADDS A RemoveSong_Transaction TO THE TRANSACTION STACK
-    // store.addRemoveSongTransaction = () => {
-    //     let index = store.currentSongIndex;
-    //     let song = store.currentList.songs[index];
-    //     let transaction = new RemoveSong_Transaction(store, index, song);
-    //     tps.addTransaction(transaction);
-    // };
-    // store.addUpdateSongTransaction = function (index, newSongData) {
-    //     let song = store.currentList.songs[index];
-    //     let oldSongData = {
-    //         title: song.title,
-    //         artist: song.artist,
-    //         youTubeId: song.youTubeId,
-    //     };
-    //     let transaction = new UpdateSong_Transaction(
-    //         this,
-    //         index,
-    //         oldSongData,
-    //         newSongData
-    //     );
-    //     tps.addTransaction(transaction);
-    // };
-    // store.updateCurrentList = function () {
-    //     async function asyncUpdateCurrentList() {
-    //         const response = await api.updatePlaylistById(
-    //             store.currentList._id,
-    //             store.currentList
-    //         );
-    //         if (response.data.success) {
-    //             storeReducer({
-    //                 type: GlobalStoreActionType.SET_CURRENT_LIST,
-    //                 payload: store.currentList,
-    //             });
-    //         }
-    //     }
-    //     asyncUpdateCurrentList();
-    // };
+    const moveSong = (start: number, end: number) => {
+        if (storeState.currentList === null) {
+            return;
+        }
+        tps.addTransaction(
+            new MoveSongTransaction(
+                _moveSong,
+                _moveSong,
+                storeState.currentListId,
+                start,
+                end
+            )
+        );
+    };
+
+    const editSong = (index: number, ndata: Song) => {
+        if (storeState.currentList === null) return;
+        let id = storeState.currentListId;
+        let odata = storeState.currentList[index];
+        tps.addTransaction(
+            new EditSongTransaction(
+                _editSong,
+                _editSong,
+                id,
+                index,
+                odata,
+                ndata
+            )
+        );
+    };
+
     const undo = function () {
         tps.undoTransaction();
     };
     const redo = function () {
         tps.doTransaction();
     };
+    const raiseModal = function (modal: CurrentModal, payload: any) {
+        if (modal === CurrentModal.EDIT_SONG) {
+            storeReducer({
+                type: GlobalStoreActionType.EDIT_SONG,
+                payload: payload, //expects a song and songIndex
+            });
+        } else {
+            storeReducer({
+                type: GlobalStoreActionType.HIDE_MODALS,
+                payload: {},
+            });
+        }
+    };
+
     // store.canAddNewSong = function () {
     //     return !store.isModalOpen() && store.currentList !== null;
     // };
@@ -818,6 +902,11 @@ function GlobalStoreContextProvider({
         removeSong: removeSong,
         undo: undo,
         redo: redo,
+        publishPlaylist: publishPlaylist,
+        duplicateList: duplicateList,
+        moveSong: moveSong,
+        raiseModal: raiseModal,
+        editSong: editSong,
     };
 
     // GlobalStoreContext = createContext(store);

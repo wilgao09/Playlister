@@ -45,162 +45,368 @@ const updatePlaylistContents = (req, res, next) => {
         }
         console.log("reqbody looks like");
         console.log(req.body);
-        log.debug("initializing transaction");
-        const t = await sequelize.transaction();
-        log.debug("transaction initialized");
+
+        let t;
 
         req.params.id = parseInt(req.params.id);
 
         let id = pl._id;
         console.log("HERES THE ENTIRE REQ");
         console.log(pl);
-        try {
-            switch (delta.type) {
-                //TODO: type check d0, d1
-                case "CREATE": {
-                    let song;
-                    console.log("TRY TO FIND IN THIS PLAYLSIT ID");
-                    console.log(pl._id);
-                    Pls.update(
-                        {
-                            indexIn: sequelize.literal(" indexIn + 1 "),
-                        }, //increment index on all rows before d0
-                        {
-                            where: {
-                                in: { [Op.eq]: id },
-                                indexIn: { [Op.gte]: delta.d0 },
-                                // _id: {
-                                //     [Op.eq]: sequelize.literal("`_id`"),
-                                // },
-                            },
-                            transaction: t,
-                        }
-                    )
-                        .then(() => {
-                            log.debug("completed update");
-                            return Song.findAll({
+        // try {
+        switch (delta.type) {
+            //TODO: type check d0, d1
+            case "CREATE": {
+                let song;
+                console.log("TRY TO FIND IN THIS PLAYLSIT ID");
+                console.log(pl._id);
+                sequelize
+                    .transaction()
+                    .then((k) => {
+                        t = k;
+                        return Pls.update(
+                            {
+                                indexIn: sequelize.literal(" indexIn + 1 "),
+                            }, //increment index on all rows before d0
+                            {
                                 where: {
+                                    in: { [Op.eq]: id },
+                                    indexIn: { [Op.gte]: delta.d0 },
+                                    // _id: {
+                                    //     [Op.eq]: sequelize.literal("`_id`"),
+                                    // },
+                                },
+                                transaction: t,
+                            }
+                        );
+                    })
+
+                    .then(() => {
+                        log.debug("completed update");
+                        return Song.findAll({
+                            where: {
+                                title: delta.d1.title,
+                                artist: delta.d1.artist,
+                                youTubeId: delta.d1.youTubeId,
+                            },
+                            limit: 1,
+                            lock: true,
+                            transaction: t,
+                        });
+                    })
+                    .then((s) => {
+                        if (s.length == 0) {
+                            return Song.create(
+                                {
                                     title: delta.d1.title,
                                     artist: delta.d1.artist,
                                     youTubeId: delta.d1.youTubeId,
-                                },
-                                limit: 1,
-                                lock: true,
-                                transaction: t,
-                            });
-                        })
-                        .then((s) => {
-                            if (s.length == 0) {
-                                return Song.create(
-                                    {
-                                        title: delta.d1.title,
-                                        artist: delta.d1.artist,
-                                        youTubeId: delta.d1.youTubeId,
-                                        refs: 1,
-                                    },
-                                    { transaction: t }
-                                ).then((s) => (song = s));
-                            }
-                            song = s[0].dataValues;
-                            console.log("song is");
-                            console.log(song);
-                            return Song.update(
-                                { refs: song.refs + 1 },
-                                { where: { _id: song._id }, transaction: t }
-                            );
-                        })
-                        .then(() => {
-                            return Pls.create(
-                                {
-                                    in: req.params.id,
-                                    song_id: song._id,
-                                    indexIn: delta.d0,
+                                    refs: 1,
                                 },
                                 { transaction: t }
-                            );
-                        })
-                        .then(() => t.commit())
-                        .then(() => res.status(200).send());
-                    return;
-                }
-                //TODO: fix race condition
-                case "DELETE": {
-                    Pls.findAll({
-                        where: { in: req.params.id, indexIn: delta.d0 },
-                        transaction: t,
-                        limit: 1,
-                        lock: true,
+                            ).then((s) => (song = s));
+                        }
+                        song = s[0].dataValues;
+                        console.log("song is");
+                        console.log(song);
+                        return Song.update(
+                            { refs: song.refs + 1 },
+                            { where: { _id: song._id }, transaction: t }
+                        );
                     })
-                        .then((plsobj) => {
-                            if (plsobj.length < 1) {
-                                //TODO: song doesnt exist
-                                console.log("DOESNT EXIST; UHOH");
-                            }
-                            plsobj = plsobj[0].dataValues;
-                            console.log(plsobj);
-                            return Song.findByPk(plsobj.song_id, {
+                    .then(() => {
+                        return Pls.create(
+                            {
+                                in: req.params.id,
+                                song_id: song._id,
+                                indexIn: delta.d0,
+                            },
+                            { transaction: t }
+                        );
+                    })
+                    .then(() => t.commit())
+                    .then(() => res.status(200).send())
+                    .catch((err) => {
+                        t.rollback();
+                        res.status(err.status ?? 500).json({ err: err });
+                    });
+                return;
+            }
+            //TODO: fix race condition
+            case "DELETE": {
+                sequelize
+                    .transaction()
+                    .then((k) => {
+                        t = k;
+                        return Pls.findAll({
+                            where: { in: req.params.id, indexIn: delta.d0 },
+                            transaction: t,
+                            limit: 1,
+                            lock: true,
+                        });
+                    })
+
+                    .then((plsobj) => {
+                        if (plsobj.length < 1) {
+                            //TODO: song doesnt exist
+                            console.log("DOESNT EXIST; UHOH");
+                        }
+                        plsobj = plsobj[0].dataValues;
+                        console.log(plsobj);
+                        return Song.findByPk(plsobj.song_id, {
+                            transaction: t,
+                            lock: true,
+                        });
+                    })
+                    .then((s) => {
+                        if (s.refs === 1) {
+                            return Song.destroy({
+                                where: { _id: s._id },
                                 transaction: t,
-                                lock: true,
                             });
-                        })
-                        .then((s) => {
-                            if (s.refs === 1) {
-                                return Song.destroy({
+                        } else {
+                            return Song.update(
+                                { refs: s.refs - 1 },
+                                {
                                     where: { _id: s._id },
                                     transaction: t,
-                                });
-                            } else {
-                                return Song.update(
-                                    { refs: s.refs - 1 },
-                                    {
-                                        where: { _id: s._id },
-                                        transaction: t,
-                                    }
-                                );
+                                }
+                            );
+                        }
+                    })
+                    .then(() => t.commit())
+                    .then(() => {
+                        console.log(delta);
+                        return Pls.destroy({
+                            where: {
+                                in: req.params.id,
+                                indexIn: delta.d0,
+                            },
+                        });
+                    })
+                    .then(() => {
+                        return Pls.update(
+                            { indexIn: sequelize.literal("indexIn-1") },
+                            {
+                                where: {
+                                    indexIn: { [Op.gt]: delta.d0 },
+                                },
                             }
+                        );
+                    })
+
+                    .then(() => res.status(200).send())
+                    .catch((err) => {
+                        t.rollback();
+                        res.status(err.status ?? 500).json({ err: err });
+                    });
+                return;
+            }
+            case "EDIT": {
+                let todelete = null;
+                sequelize
+                    .transaction()
+                    .then((k) => (t = k))
+                    .then(() =>
+                        Pls.findAll({
+                            where: {
+                                in: req.params.id,
+                                indexIn: delta.d0,
+                            },
+                            transaction: t,
                         })
-                        .then(() => t.commit())
-                        .then(() => {
-                            console.log(delta);
-                            return Pls.destroy({
+                    )
+
+                    .then((pls) => {
+                        if (pls.length != 1) {
+                            //TODO: error out
+                            throw "SHIT";
+                        }
+                        pls = pls[0].dataValues;
+                        console.log("PLS is");
+                        console.log(pls);
+                        return Song.findByPk(pls.song_id, {
+                            transaction: t,
+                            lock: true,
+                        });
+                    })
+                    .then((s) => {
+                        //TODO:
+                        // if s doesnt exist
+                        if (s.refs == 1) {
+                            todelete = s;
+                            return;
+                        } else {
+                            return Song.update(
+                                { refs: s.refs - 1 },
+                                { where: { _id: s._id }, transaction: t }
+                            );
+                        }
+                    })
+                    .then(() => {
+                        return Song.findAll({
+                            where: {
+                                title: delta.d1.title,
+                                artist: delta.d1.artist,
+                                youTubeId: delta.d1.youTubeId,
+                            },
+                            transaction: t,
+                            lock: true,
+                        });
+                    })
+                    .then((sres) => {
+                        if (sres.length == 1) {
+                            sres = sres[0].dataValues;
+                            console.log(sres);
+                            return Song.update(
+                                { refs: sres.refs + 1 },
+                                {
+                                    where: {
+                                        _id: sres._id,
+                                    },
+                                    transaction: t,
+                                }
+                            ).then(() => sres._id);
+                        } else {
+                            return Song.create(
+                                {
+                                    title: delta.d1.title,
+                                    artist: delta.d1.artist,
+                                    youTubeId: delta.d1.youTubeId,
+                                    refs: 1,
+                                },
+                                { transaction: t }
+                            ).then((o) => o.dataValues._id);
+                        }
+                    })
+                    .then((id) => {
+                        return Pls.update(
+                            {
+                                song_id: id,
+                            },
+                            {
                                 where: {
                                     in: req.params.id,
                                     indexIn: delta.d0,
                                 },
-                            });
-                        })
-                        .then(() => {
-                            return Pls.update(
-                                { indexIn: sequelize.literal("indexIn-1") },
-                                {
-                                    where: {
-                                        indexIn: { [Op.gt]: delta.d0 },
-                                    },
-                                }
-                            );
-                        })
-
-                        .then(() => res.status(200).send());
-                }
-                case "EDIT": {
-                    //TODO: edit
-                    return;
-                }
-                case "MOVE": {
-                    //TODO: move
-                }
-                default: {
-                    res.status(400).json({
-                        err: `${delta.type} is not a valid delta type`,
+                                transaction: t,
+                            }
+                        );
+                    })
+                    .then(() => t.commit())
+                    .then(
+                        () => {
+                            if (todelete !== null) {
+                                return Song.destroy({
+                                    where: { _id: todelete._id },
+                                });
+                            }
+                        }
+                        // todelete == null ? todelete.destroy() : undefined
+                    )
+                    .then(() => res.status(200).send())
+                    .catch((err) => {
+                        t.rollback();
+                        res.status(err.status ?? 500).json({ err: err });
                     });
-                    return;
-                }
+                return;
             }
-        } catch (e) {
-            t.rollback();
-            console.error("ROLLED BACK!");
-            res.status(500).json({ err: e }).send();
+            case "MOVE": {
+                //TODO: move
+                let tomove = null;
+                let t;
+                sequelize
+                    .transaction()
+                    .then((k) => {
+                        t = k;
+                        return Pls.findAll({
+                            where: {
+                                in: req.params.id,
+                                indexIn: delta.d0,
+                            },
+                            transaction: t,
+                            limit: 1,
+                            lock: true,
+                        });
+                    })
+                    .then((plsobj) => {
+                        if (plsobj.length != 1) {
+                            throw {
+                                status: 404,
+                                err: "Index Out of Bounds",
+                            };
+                        }
+                        plsobj = plsobj[0].dataValues;
+                        tomove = plsobj;
+                        return Pls.findAll({
+                            where: {
+                                in: req.params.id,
+                                indexIn: delta.d1,
+                            },
+                            transaction: t,
+                            limit: 1,
+                            lock: true,
+                        });
+                    })
+                    .then((destobj) => {
+                        if (destobj.length != 1) {
+                            throw {
+                                status: 404,
+                                err: "Index Out of Bounds",
+                            };
+                        }
+                        return Pls.update(
+                            {
+                                indexIn: sequelize.literal(" indexIn - 1 "),
+                            },
+                            {
+                                where: {
+                                    indexIn: { [Op.gt]: delta.d0 },
+                                },
+                                transaction: t,
+                            }
+                        );
+                    })
+                    .then(() => {
+                        return Pls.update(
+                            {
+                                indexIn: sequelize.literal(" indexIn + 1 "),
+                            },
+                            {
+                                where: {
+                                    indexIn: { [Op.gte]: delta.d1 },
+                                },
+                                transaction: t,
+                            }
+                        );
+                    })
+                    .then(() => {
+                        return Pls.update(
+                            { indexIn: delta.d1 },
+                            { where: { _id: tomove._id }, transaction: t }
+                        );
+                    })
+                    .then(() => t.commit())
+                    .then(() => res.send(200).send())
+                    .catch(
+                        (err) =>
+                            t.rollback() &&
+                            res.status(err.status ?? 500).json({ err: err })
+                    );
+                return;
+            }
+            default: {
+                res.status(400).json({
+                    err: `${delta.type} is not a valid delta type`,
+                });
+                return;
+            }
         }
+        // } catch (e) {
+        //     t.rollback();
+        //     console.error("ROLLED BACK!");
+        //     res.status(500).json({ err: e }).send();
+        // }
     });
 };
 
