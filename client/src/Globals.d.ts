@@ -1,3 +1,5 @@
+// import { CurrentScreen } from "./store";
+
 declare module "*.module.css";
 declare module "*.css";
 
@@ -11,6 +13,8 @@ interface SongList {
     owner: string;
     upvotes: number;
     downvotes: number;
+    userLiked: number; //TODO: inefficiency, root
+    userDisliked: number;
 }
 
 interface Song {
@@ -56,6 +60,9 @@ interface Auth {
     logoutUser: () => void;
     getUserInitials: () => string;
     resetFailure: () => void;
+    popupError: (e: string) => void;
+    closeError: () => void;
+    getError: () => string;
 }
 
 interface StoreState {
@@ -71,6 +78,7 @@ interface StoreState {
     currentPlayingListId: number;
     currentPlayingList: Song[];
     currentPlayingSongIndex: number;
+    currentPlayingListName: string;
     currentSongIndex: number;
     currentSong: Song | null;
     listToDelete: number;
@@ -78,10 +86,11 @@ interface StoreState {
 
 interface Store {
     store: StoreState;
-    changeListName: (id: number, newName: string) => void;
+    changeListName: (id: number, newName: string) => Promise;
     closeCurrentList: () => void;
     createNewList: () => void;
-    loadListsData: (by: string, search: string) => void;
+    // loadListsData: (by: string, search: string) => void;
+    reloadLists: () => void;
     deleteList: (id: number) => void;
     hideModals: () => void;
     showEditSongModal: (songIndex: number, songToEdit: Song) => void;
@@ -102,6 +111,15 @@ interface Store {
     moveSong: (start: number, end: number) => void;
     raiseModal: (modal: CurrentModal, payload: any) => void;
     editSong: (index: number, ndata: Song) => void;
+    getComments: () => Promise;
+    postComment: (comment: string) => Promise;
+    playSong: (id: number, list: Song[], name: string, ind: number) => void;
+    likePlaylist: (id: number, liked: boolean) => void;
+    changeQuery: (query: string) => void;
+    changeScreen: (screen: CurrentScreen) => void;
+    changeSortOrder: (m: SortOrder) => void;
+    resetState: () => void;
+    playId: (id: number) => void;
 }
 
 interface Transaction {

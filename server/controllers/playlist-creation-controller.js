@@ -111,12 +111,20 @@ const renamePlaylist = (req, res, next) => {
     if (!req.username || !id || !req.body.name) {
         return res.status(400).json({ err: "Missing information" });
     }
-    findNextSuitableName(req.username, req.body.name)
-        .then(() => Playlist.findByPk(id))
+    Playlist.findAll({ where: { name: req.body.name, owner: req.username } })
+        .then((ans) => {
+            if (ans.length > 0) {
+                throw {
+                    status: 400,
+                    err: `Another one of your lists has the name ${req.body.name}`,
+                };
+            }
+            return Playlist.findByPk(id);
+        })
 
         .then((list) => {
             if (list.owner !== req.username || list.published) {
-                throw "Unauthorized action";
+                throw { status: 403, err: "Unauthorized action" };
             }
             return Playlist.update(
                 { name: req.body.name },
@@ -124,7 +132,7 @@ const renamePlaylist = (req, res, next) => {
             );
         })
         .then(() => res.status(200).send())
-        .catch((e) => res.status(403).json({ err: e }));
+        .catch((e) => res.status(e.status ?? 500).json({ err: e }));
 };
 
 const duplicatePlaylist = (req, res, next) => {

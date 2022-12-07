@@ -6,8 +6,9 @@ const sequelize = require("sequelize");
 const { Op } = sequelize;
 
 const log = require("loglevel");
+const Comment = require("../models/mysql/comment.model");
 
-var getCorrectedData = (whereObj) => {
+var getCorrectedData = (whereObj, username) => {
     whereObj.include = [
         {
             model: Like,
@@ -16,6 +17,9 @@ var getCorrectedData = (whereObj) => {
             attributes: [],
         },
     ];
+    if (username === undefined) {
+        username = "";
+    }
     whereObj.attributes = [
         "_id",
         "listens",
@@ -31,6 +35,20 @@ var getCorrectedData = (whereObj) => {
         [
             sequelize.fn("COUNT", sequelize.fn("IF", { liked: 0 }, 1, null)),
             "downvotes",
+        ],
+        [
+            sequelize.fn(
+                "COUNT",
+                sequelize.fn("IF", { liked: 1, username: username }, 1, null)
+            ),
+            "userLiked",
+        ],
+        [
+            sequelize.fn(
+                "COUNT",
+                sequelize.fn("IF", { liked: 0, username: username }, 1, null)
+            ),
+            "userDisliked",
         ],
     ];
     whereObj.group = ["_id"];
@@ -56,13 +74,22 @@ const getUserLists = (req, res, next) => {
     if (!req.username) {
         return res.status(400).json({ err: "Missing information" });
     }
+    let where = {
+        owner: req.username,
+    };
+    if (req.query.name) {
+        where.name = {
+            [Op.like]: `%${req.query.name}%`,
+        };
+    }
     //TODO: needs to join
     Playlist.findAll(
-        getCorrectedData({
-            where: {
-                owner: req.username,
+        getCorrectedData(
+            {
+                where: where,
             },
-        })
+            req.username
+        )
     )
         .then((data) => res.status(200).json({ playlists: data }))
         .catch((reason) => res.status(404).json({ err: reason }));
@@ -70,7 +97,7 @@ const getUserLists = (req, res, next) => {
 
 const searchPlaylist = (req, res, next) => {
     if (!req.query.name) {
-        return res.status(400).json({ err: "Missing information" });
+        return res.status(200).json({ playlists: [] });
     }
     let stmt = {
         where: {
@@ -102,14 +129,14 @@ const searchPlaylist = (req, res, next) => {
         };
     }
     //TODO: figure out status codes
-    Playlist.findAll(getCorrectedData(stmt))
+    Playlist.findAll(getCorrectedData(stmt, req.username))
         .then((data) => res.status(200).json({ playlists: data }))
         .catch((reason) => res.status(500).json({ playlists: reason }));
 };
 
 const searchUser = (req, res, next) => {
     if (!req.query.name) {
-        return res.status(400).json({ err: "Missing information" });
+        return res.status(200).json({ playlists: [] });
     }
     let stmt = {
         where: {
@@ -141,10 +168,30 @@ const searchUser = (req, res, next) => {
         };
     }
     //TODO: figure out status codes
-    Playlist.findAll(getCorrectedData(stmt))
+    Playlist.findAll(getCorrectedData(stmt, req.username))
         .then((data) => res.status(200).json({ playlists: data }))
         .catch((reason) => res.status(500).json({ playlists: reason }));
 };
+
+// const searchSelf = (req, res, next) => {
+//     if (!req.query.name || !req.username) {
+//         return res.status(400).json({ err: "Missing information" });
+//     }
+//     let stmt = {
+//         where: {
+//             [Op.and]: [
+//                 {
+//                     owner: req.query.name,
+//                 },
+//                 {
+//                     name: {
+//                         [Op.like]: `%${req.query.name}$`,
+//                     },
+//                 },
+//             ],
+//         },
+//     };
+// };
 
 const getPlaylistById = (req, res, next) => {
     if (!req.params.id) {
@@ -155,7 +202,7 @@ const getPlaylistById = (req, res, next) => {
             _id: req.params.id,
         },
     };
-    stmt = getCorrectedData(stmt);
+    stmt = getCorrectedData(stmt, req.username);
 
     let payload = null;
     Playlist.findAll(stmt)
@@ -233,7 +280,34 @@ const getPlaylistById = (req, res, next) => {
 // }, 1000);
 
 const getCommentsById = (req, res, next) => {
-    //TODO: get coomments by id
+    if (!req.params.id) {
+        return res.status(404).send();
+    }
+    let id = req.params.id;
+    log.debug("trying to find a playlsit with id " + id);
+    Playlist.findByPk(id)
+        .then((res) => {
+            if (res === null) {
+                throw { status: 404, err: "Not Found" };
+            }
+        })
+        .then(() => {
+            return Comment.findAll({
+                where: { playlist_id: id },
+                order: [["_id", "ASC"]],
+                attributes: {
+                    exclude: ["updatedAt", "_id", "playlist_id"],
+                },
+            });
+        })
+        .then((ans) => {
+            res.status(200).json({
+                comments: ans,
+            });
+        })
+        .catch((reason) => {
+            res.status(reason.status ?? 500).json({ err: reason });
+        });
 };
 
 module.exports = {
@@ -242,4 +316,5 @@ module.exports = {
     searchUser,
     getPlaylistById,
     getCommentsById,
+    // searchSelf,
 };

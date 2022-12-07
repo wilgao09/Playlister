@@ -433,6 +433,7 @@ const userPlaying = (req, res) => {
     if (!req.params.id) {
         return res.status(400).json({ err: "Missing information" });
     }
+    let id = parseInt(req.params.id);
 
     Playlist.findByPk(id)
         .then((pl) => {
@@ -441,11 +442,13 @@ const userPlaying = (req, res) => {
             }
             return Playlist.update(
                 { listens: pl.listens + 1 },
-                { where: { _id: id } }
+                { where: { _id: id }, silent: true }
             );
         })
         .then(() => res.status(200).send())
-        .catch((reason) => res.status(404).json({ err: reason }));
+        .catch((reason) => {
+            res.status(404).json({ err: reason });
+        });
 };
 
 const postComment = (req, res, next) => {

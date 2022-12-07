@@ -1,6 +1,7 @@
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import AccountCircle from "@mui/icons-material/AccountCircle";
+import Close from "@mui/icons-material/Close";
 import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
@@ -11,11 +12,14 @@ import AppBannerStyle from "./AppBanner.module.css";
 import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import AuthContext from "../auth";
+import Alert from "@mui/material/Alert";
+import GlobalStoreContext from "../store";
 
 function AppBanner() {
     const auth = useContext(AuthContext);
     const [anchorEl, setAnchorEl] = useState<Element | null>(null);
     const isMenuOpen = Boolean(anchorEl);
+    const store = useContext(GlobalStoreContext);
 
     let circleButton = auth.auth.user ? (
         <div>
@@ -38,7 +42,8 @@ function AppBanner() {
     const handleLogout = () => {
         handleMenuClose();
         //TODO: fix this
-        // store.reset();
+
+        store.resetState();
         auth.logoutUser();
     };
 
@@ -96,8 +101,31 @@ function AppBanner() {
 
     let menu = auth.auth.loggedIn ? loggedInMenu : loggedOutMenu;
 
+    let alert = undefined;
+    if (auth.getError() !== "") {
+        alert = (
+            <Alert
+                severity="error"
+                sx={{
+                    position: "fixed",
+                    top: "10%",
+                    left: "40%",
+                    // width: "200px",
+                    // height: "75px",
+                    zIndex: 100,
+                }}
+            >
+                {auth.getError()}
+                <IconButton onClick={() => auth.closeError()}>
+                    <Close />
+                </IconButton>
+            </Alert>
+        );
+    }
+
     return (
         <Box sx={{ height: "7%" }}>
+            {}
             <AppBar
                 sx={{
                     display: "flex",
@@ -124,6 +152,7 @@ function AppBanner() {
                 </IconButton>
                 {menu}
             </AppBar>
+            {alert}
         </Box>
     );
 }

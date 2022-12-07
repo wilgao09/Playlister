@@ -1,0 +1,47 @@
+.tab {
+    border-radius: 16px 16px 0px 0px;
+    background-color: rgb(96, 96, 96);
+    border-color: black;
+    border-style: solid solid none solid;
+    width: 20%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: white;
+}
+
+.youtube-open {
+    width: 480px;
+    height: 360px;
+}
+
+.youtube-closed {
+    position: fixed;
+    top: -1000px;
+    left: -1000px;
+}
+
+.bottom-about {
+    width: 100%;
+    height: 220px;
+    background-color: aliceblue;
+    padding: 10px;
+}
+
+.comment {
+    border-radius: 16px;
+    background-color: aliceblue;
+    box-shadow: 10px 5px 5px lightgrey;
+    padding: 8px;
+    margin-top: 4px;
+    margin-bottom: 8px;
+    width: 95%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.username {
+    font-size: 12pt;
+    color: rgb(67, 67, 255);
+}

@@ -4,6 +4,10 @@ import ListSpace from "./ListSpace";
 import PlaylisterTools from "./PlaylisterTools";
 
 import PlaylisterWorkspaceStyle from "./PlaylisterWorkspace.module.css";
+import WorkspaceBar from "./WorkspaceBar";
+
+import Youtube from "react-youtube";
+import PlayerTabs from "./PlayerTabs";
 
 function PlaylisterWorkspace() {
     return (
@@ -21,11 +25,11 @@ function PlaylisterWorkspace() {
                     <div className={PlaylisterWorkspaceStyle["list-space"]}>
                         <ListSpace></ListSpace>
                     </div>
-                    <div
-                        className={PlaylisterWorkspaceStyle["player-space"]}
-                    ></div>
+                    <div className={PlaylisterWorkspaceStyle["player-space"]}>
+                        <PlayerTabs />
+                    </div>
                     <div className={PlaylisterWorkspaceStyle["bar-space"]}>
-                        {/* <WorkspaceBar/> */}
+                        <WorkspaceBar />
                     </div>
                 </div>
             </div>

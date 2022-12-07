@@ -35,7 +35,8 @@ export const createPlaylist = (newListName: String) => {
 export const deletePlaylistById = (id: Number) => api.delete(`/playlist/${id}`);
 export const getPlaylistById = (id: Number) => api.get(`/playlist/${id}`);
 // export const getPlaylistPairs = () => api.get(`/playlistpairs/`);
-export const getUserLists = () => api.get(`/playlist`);
+export const getUserLists = (name?: string) =>
+    api.get(`/playlist${name ? "?name=" + name : ""}`);
 
 export const searchByUsername = (name: string) =>
     api.get(`/playlist/searchUser?name=${name}`);
@@ -50,7 +51,7 @@ export const updatePlaylistById = (id: Number, delta: Delta) => {
 };
 export const renamePlaylist = (id: number, name: string) =>
     api.put(`/playlist/rename/${id}`, {
-        body: name,
+        name: name,
     });
 
 export const publishPlaylist = (id: number) =>
@@ -58,6 +59,19 @@ export const publishPlaylist = (id: number) =>
 
 export const duplicateList = (id: number) =>
     api.post(`/playlist/duplicate/${id}`);
+
+export const getComments = (id: number) => api.get(`/playlist/comment/${id}`);
+
+export const postComment = (id: number, comment: string) =>
+    api.post(`/playlist/comment/${id}`, { comment: comment });
+
+export const likePlaylist = (id: number, liked: boolean) =>
+    api.post(`/playlist/like/${id}`, {
+        liked: liked,
+    });
+
+export const listenToList = (id: number) =>
+    api.post(`/playlist/userPlaying/${id}`);
 
 const apis = {
     createPlaylist,
@@ -70,6 +84,10 @@ const apis = {
     duplicateList,
     searchByPlaylist,
     searchByUsername,
+    getComments,
+    postComment,
+    likePlaylist,
+    listenToList,
 };
 
 export default apis;

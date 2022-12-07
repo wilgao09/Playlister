@@ -35,6 +35,22 @@ function SongEditSpace(props: SongEditProps) {
         });
     };
 
+    const handlePlay = (ind: number) => {
+        if (store.store.currentList === null) {
+            return;
+        }
+        //find the name of the list LOL
+        let name = store.store.currentlyLoadedLists.filter(
+            (x) => x._id == store.store.currentListId
+        )[0].name;
+        store.playSong(
+            store.store.currentListId,
+            store.store.currentList,
+            name,
+            ind
+        );
+    };
+
     if (!props.published) {
         //TODO: test drag
         body = store.store.currentList.map((x, i) => (
@@ -51,6 +67,10 @@ function SongEditSpace(props: SongEditProps) {
                     //     songIndex: i,
                     // });
                     store.showEditSongModal(i, x);
+                }}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    handlePlay(i);
                 }}
             >
                 {1 + i}. {x.title} by {x.artist}
@@ -77,7 +97,12 @@ function SongEditSpace(props: SongEditProps) {
         );
     } else {
         body = store.store.currentList.map((x, i) => (
-            <div key={x.title + i}>
+            <div
+                key={x.title + i}
+                onClick={() => {
+                    handlePlay(i);
+                }}
+            >
                 <Typography>
                     {i + 1}. {x.title} by {x.artist}
                 </Typography>

@@ -25,6 +25,9 @@ let initContext: Auth = {
     logoutUser: () => {},
     getUserInitials: () => "",
     resetFailure: () => {},
+    popupError: (e: string) => {},
+    closeError: () => {},
+    getError: () => "",
 };
 
 let AuthContext: React.Context<Auth> = createContext(initContext);
@@ -57,6 +60,7 @@ function AuthContextProvider({ children }: JSX.ElementChildrenAttribute) {
         isGuest: false,
     };
     const [authState, setAuth] = useState(initialState);
+    const [popup, setPopup] = useState("");
     const history = useNavigate();
 
     const authReducer = (action: { type: string; payload: any }) => {
@@ -226,6 +230,18 @@ function AuthContextProvider({ children }: JSX.ElementChildrenAttribute) {
         });
     };
 
+    const popupError = (e: string) => {
+        setPopup(e);
+    };
+
+    const closeError = () => {
+        setPopup("");
+    };
+
+    const getError = () => {
+        return popup;
+    };
+
     const auth: Auth = {
         auth: authState,
         getLoggedIn: getLoggedIn,
@@ -234,9 +250,10 @@ function AuthContextProvider({ children }: JSX.ElementChildrenAttribute) {
         logoutUser: logoutUser,
         getUserInitials: getUserInitials,
         resetFailure: resetFailure,
+        popupError,
+        closeError,
+        getError,
     };
-
-    // AuthContext = createContext(auth);
 
     useEffect(() => {
         auth.getLoggedIn();

@@ -39,6 +39,8 @@ router.get(
     PlaylistSearchController.searchUser
 );
 
+// router.get("/playlist/searchSelf", PlaylistSearchController.searchSelf);
+
 router.get(
     "/playlist/:id",
     (req, res, next) => verify(req, res, next, true),
@@ -68,7 +70,11 @@ router.post(
     PlaylistEditController.userPlaying
 );
 
-router.post("/playlist/comment", verify, PlaylistEditController.postComment);
+router.post(
+    "/playlist/comment/:id",
+    verify,
+    PlaylistEditController.postComment
+);
 
 router.post("/playlist/like/:id", verify, PlaylistEditController.likePlaylist);
 
