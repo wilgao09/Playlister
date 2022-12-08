@@ -31,7 +31,7 @@ CREATE TABLE `songs` (
   `createdAt` datetime NOT NULL,
   `updatedAt` datetime NOT NULL,
   PRIMARY KEY (`_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -40,7 +40,7 @@ CREATE TABLE `songs` (
 
 LOCK TABLES `songs` WRITE;
 /*!40000 ALTER TABLE `songs` DISABLE KEYS */;
-INSERT INTO `songs` VALUES (4,'Untitled','Unknown','dQw4w9WgXcQ',10,'2022-12-06 21:27:38','2022-12-08 03:50:43'),(6,'Uwe','qwe','dQw4w9WgXcQ',1,'2022-12-06 21:38:36','2022-12-06 21:38:36'),(10,'Untitdwdled','Unknown','dQw4w9WgXcQ',1,'2022-12-06 21:50:56','2022-12-06 21:50:56'),(11,'b','Unknown','dQw4w9WgXcQ',1,'2022-12-06 21:50:59','2022-12-06 21:50:59'),(12,'c','Unknown','dQw4w9WgXcQ',1,'2022-12-06 21:51:02','2022-12-06 21:51:02'),(15,'forgot','xomu','FwWUqQz6Llk',1,'2022-12-07 05:03:16','2022-12-07 05:03:16'),(16,'inori','kirara magic','Lu7pFZWR0zk',1,'2022-12-07 05:14:55','2022-12-07 05:14:55'),(17,'Untitled','Unknown','nUzjJ1mNRRQ',1,'2022-12-08 03:50:44','2022-12-08 03:50:44');
+INSERT INTO `songs` VALUES (4,'Untitled','Unknown','dQw4w9WgXcQ',10,'2022-12-06 21:27:38','2022-12-08 04:20:27'),(6,'Uwe','qwe','dQw4w9WgXcQ',1,'2022-12-06 21:38:36','2022-12-06 21:38:36'),(10,'Untitdwdled','Unknown','dQw4w9WgXcQ',1,'2022-12-06 21:50:56','2022-12-06 21:50:56'),(11,'b','Unknown','dQw4w9WgXcQ',1,'2022-12-06 21:50:59','2022-12-06 21:50:59'),(12,'c','Unknown','dQw4w9WgXcQ',1,'2022-12-06 21:51:02','2022-12-06 21:51:02'),(15,'forgot','xomu','FwWUqQz6Llk',1,'2022-12-07 05:03:16','2022-12-07 05:03:16'),(16,'inori','kirara magic','Lu7pFZWR0zk',2,'2022-12-07 05:14:55','2022-12-08 04:18:54'),(17,'Untitled','Unknown','nUzjJ1mNRRQ',1,'2022-12-08 03:50:44','2022-12-08 03:50:44'),(18,'Angriefer','Unlucky Morpheus','hz6nMsQPSJk',1,'2022-12-08 04:19:19','2022-12-08 04:19:19'),(19,'Night of Bloom','Xomu','FwWUqQz6Llk',1,'2022-12-08 04:20:05','2022-12-08 04:20:05'),(20,'Motherland','Ado','_wZfYtYwxro',1,'2022-12-08 04:20:27','2022-12-08 04:20:27');
 /*!40000 ALTER TABLE `songs` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -53,4 +53,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-12-07 23:10:26
+-- Dump completed on 2022-12-07 23:29:35
