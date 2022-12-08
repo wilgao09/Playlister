@@ -49,7 +49,7 @@ export default function () {
         let isPublished = store.store.currentlyLoadedLists.filter(
             (x) => x._id === store.store.currentPlayingListId
         );
-        if (isPublished.length > 1) {
+        if (isPublished.length > 0) {
             let p = isPublished[0].published;
             if (published !== p) {
                 setPublished(p);
@@ -123,7 +123,7 @@ export default function () {
                     </Grid>
                     <Grid item xs={9}>
                         <Typography>
-                            {store.store.currentPlayingSongIndex}
+                            {store.store.currentPlayingSongIndex + 1}
                         </Typography>
                     </Grid>
 
@@ -205,10 +205,10 @@ export default function () {
                                     );
                                 }
                             }}
-                            // disabled={
-                            //     store.store.currentPlayingSongIndex >=
-                            //     store.store.currentPlayingList.length - 1
-                            // }
+                            disabled={
+                                store.store.currentPlayingSongIndex >=
+                                store.store.currentPlayingList.length - 1
+                            }
                         >
                             <FastForward />
                         </IconButton>
