@@ -17,11 +17,14 @@ The secret key is stored in a plaintext config file. Do not use any real passwor
 ### Test Data
 
 email `xol@ani.com`, password `QWErty123`
+
 email `bbb`, password `zazazaza`
 
 The playlist by `AAAAAAAA` titled `TheBestList` has non-rickroll music
 
 The database root password is `toor`
+
+The database is dumped in the folder titled `mysql_dump`
 
 ### Languages
 
