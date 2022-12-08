@@ -125,10 +125,47 @@ function ModalSwitch() {
             );
         }
         case CurrentModal.REMOVE_SONG: {
-            break;
+            if (store.store.currentSong === null)
+                return <div>Unexpected error</div>;
+            else
+                return (
+                    <PlaylisterModal
+                        title="Remove Song"
+                        confirm={() => {
+                            store.removeSong(store.store.currentSongIndex);
+                        }}
+                        cancel={() => {
+                            store.hideModals();
+                        }}
+                    >
+                        <Typography>
+                            Are you sure you want to remove{" "}
+                            {store.store.currentSong.title}?
+                        </Typography>
+                    </PlaylisterModal>
+                );
         }
         case CurrentModal.DELETE_LIST: {
-            break;
+            let name = store.store.currentlyLoadedLists.filter(
+                (x) => x._id === store.store.listToDelete
+            )[0].name;
+            console.log("NAME IS vv");
+            console.log(name);
+            return (
+                <PlaylisterModal
+                    title="Delete Playlist"
+                    confirm={() => {
+                        store.deleteList(store.store.listToDelete);
+                    }}
+                    cancel={() => {
+                        store.hideModals();
+                    }}
+                >
+                    <Typography>
+                        Are you sure you want to delete {name}?
+                    </Typography>
+                </PlaylisterModal>
+            );
         }
     }
 

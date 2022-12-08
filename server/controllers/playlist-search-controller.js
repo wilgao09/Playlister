@@ -82,7 +82,6 @@ const getUserLists = (req, res, next) => {
             [Op.like]: `%${req.query.name}%`,
         };
     }
-    //TODO: needs to join
     Playlist.findAll(
         getCorrectedData(
             {

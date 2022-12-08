@@ -3,11 +3,13 @@ const Playlist = require("../models/mysql/playlist.model");
 const log = require("loglevel");
 
 const { Op } = require("sequelize");
+const { getMaxListeners } = require("../app");
 
 //TODO: FINISH
 const findNextSuitableName = (username, samplename, failOnFirst = false) => {
     let match = samplename.match(/^(.*) (\(([0-9]+)\))?$/);
     let name = match ? match[0] : samplename;
+    console.log("match for " + name);
 
     return new Promise(
         (resolve, reject) =>
@@ -16,29 +18,46 @@ const findNextSuitableName = (username, samplename, failOnFirst = false) => {
                     owner: username,
                     name: samplename,
                 },
-            }).then((res) => {
-                if (res.length >= 1) {
-                    if (failOnFirst) {
-                        reject(`${samplename} is in use`);
-                    } else {
-                        return Playlist.findAll({
-                            where: {
-                                [Op.and]: [
-                                    { owner: username },
-                                    {
-                                        name: {
-                                            [Op.regexp]: `^${name} ([(][0-9]+[)])$`,
-                                        },
-                                    },
-                                ],
-                            },
-                        });
-                    }
-                } else {
-                    resolve(samplename);
-                }
-                return null;
             })
+                .then((res) => {
+                    if (res.length >= 1) {
+                        if (failOnFirst) {
+                            reject(`${samplename} is in use`);
+                            return "rejected";
+                        } else {
+                            return Playlist.findAll({
+                                where: {
+                                    [Op.and]: [
+                                        { owner: username },
+                                        {
+                                            name: {
+                                                [Op.regexp]: `^${name} ([(][0-9]+[)])?$`,
+                                            },
+                                        },
+                                    ],
+                                },
+                            });
+                        }
+                    } else {
+                        resolve(samplename);
+                        return "resolved";
+                    }
+                })
+                .then((x) => {
+                    if (typeof x == "string") return "";
+                    console.log("answer set was ");
+                    console.log(x);
+                    if (x.length === 0) {
+                        resolve(name + " (1)");
+                    } else {
+                        let nums = x.map((k) => {
+                            k = k.dataValues.name;
+                            let t = k.slice(name.length).trim();
+                            return parseInt(t.slice(1, t.length - 1));
+                        });
+                        resolve(name + " (" + (Math.max(...nums) + 1) + ")");
+                    }
+                })
         // Playlist.findAll({
         //     where: {
         //         [Op.and]: [
@@ -56,16 +75,12 @@ const findNextSuitableName = (username, samplename, failOnFirst = false) => {
     );
 };
 
-// setTimeout(async () => {
-//     console.log(await findNextSuitableName("xolaani", "BestList"));
-//     console.log("ANSWER^^^^^^^");
-// }, 1000);
-
-const createPlaylist = (req, res, next) => {
+const createPlaylist = async (req, res, next) => {
     if (!req.username || !req.body.name) {
         return res.status(400).json({ err: "Missing information" });
     }
     // TODO: unique name
+    req.body.name = await findNextSuitableName(req.username, req.body.name);
     Playlist.create({
         owner: req.username,
         name: req.body.name,
@@ -92,7 +107,7 @@ const deletePlaylist = (req, res, next) => {
     Playlist.findByPk(id)
         .then((list) => {
             log.debug(list.owner);
-            if (list.owner !== req.username || list.published) {
+            if (list.owner !== req.username) {
                 errMessage = "Unauthorized action";
                 throw "Unauthorized action";
             }
@@ -147,8 +162,10 @@ const duplicatePlaylist = (req, res, next) => {
                 errMessage = "Unauthorized action";
                 throw "Unauthorized action";
             }
-            // TODO: unique names
-            req.body.name = list.name + " (DUPLICATE)";
+            return findNextSuitableName(req.username, list.name);
+        })
+        .then((name) => {
+            req.body.name = name;
             createPlaylist(req, res, next);
         })
         .catch((e) =>

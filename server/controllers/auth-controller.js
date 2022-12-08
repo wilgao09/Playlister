@@ -9,7 +9,6 @@ getLoggedIn = (req, res) => {
 };
 
 registerUser = async (req, res) => {
-    console.log("?????");
     try {
         const { username, firstName, lastName, email, password, password2 } =
             req.body;

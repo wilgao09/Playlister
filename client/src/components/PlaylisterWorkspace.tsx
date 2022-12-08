@@ -16,6 +16,8 @@ function PlaylisterWorkspace() {
             <PlaylisterTools></PlaylisterTools>
             <div
                 style={{
+                    position: "fixed",
+                    // top: "120px",
                     height: `${window.innerHeight - 120}px`,
                     backgroundColor: "pink",
                     width: "100%",

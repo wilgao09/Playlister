@@ -103,6 +103,9 @@ let initial__store: Store = {
     changeSortOrder: (m: SortOrder) => {},
     resetState: () => {},
     playId: (id: number) => {},
+    setScreenQuery: (screen: CurrentScreen, query: string) => {},
+    canUndo: () => false,
+    canRedo: () => false,
 };
 
 let GlobalStoreContext: React.Context<Store> =
@@ -127,6 +130,7 @@ export enum GlobalStoreActionType {
     CHANGE_SEARCH,
     CHANGE_SCREEN,
     CHANGE_SORT_ORDER,
+    SET_SCREEN_QUERY,
 }
 
 // WE'LL NEED THIS TO PROCESS TRANSACTIONS
@@ -137,6 +141,11 @@ const tps = new tsTPS();
 function GlobalStoreContextProvider({
     children,
 }: JSX.ElementChildrenAttribute) {
+    console.log("inside useGlobalStore");
+    const bigAuth = useContext(AuthContext);
+    let auth = bigAuth.auth;
+    console.log("auth: " + auth);
+
     // THESE ARE ALL THE THINGS OUR DATA STORE WILL MANAGE
     let initial__state: StoreState = {
         currentModal: CurrentModal.NONE,
@@ -144,7 +153,9 @@ function GlobalStoreContextProvider({
         currentListId: -100,
         currentList: null,
         searchQuery: "",
-        currentScreen: CurrentScreen.HOME,
+        currentScreen: auth.isGuest
+            ? CurrentScreen.PLAYLISTS
+            : CurrentScreen.HOME,
         currentPlayerTab: CurrentTab.VIDEO,
         sortOrder: SortOrder.NAME_ASC,
         listNameToEdit: -100,
@@ -158,15 +169,8 @@ function GlobalStoreContextProvider({
     };
 
     const [storeState, setStore] = useState<StoreState>(initial__state);
-    const navigate = useNavigate();
-
-    console.log("inside useGlobalStore");
-
-    // SINCE WE'VE WRAPPED THE STORE IN THE AUTH CONTEXT WE CAN ACCESS THE USER HERE
-    const bigAuth = useContext(AuthContext);
-    let auth = bigAuth.auth;
-    console.log("auth: " + auth);
-
+    console.log("initialized state with");
+    console.log(initial__state);
     // HERE'S THE DATA STORE'S REDUCER, IT MUST
     // HANDLE EVERY TYPE OF STATE CHANGE
     const storeReducer = (action: {
@@ -297,8 +301,8 @@ function GlobalStoreContextProvider({
                 return setStore({
                     currentModal: CurrentModal.DELETE_LIST,
                     currentlyLoadedLists: storeState.currentlyLoadedLists,
-                    currentListId: -100,
-                    currentList: [],
+                    currentListId: storeState.currentListId,
+                    currentList: storeState.currentList,
                     searchQuery: storeState.searchQuery,
                     currentScreen: storeState.currentScreen,
                     currentPlayerTab: storeState.currentPlayerTab,
@@ -308,7 +312,7 @@ function GlobalStoreContextProvider({
                     currentPlayingSongIndex: storeState.currentPlayingSongIndex,
                     currentSongIndex: -100,
                     currentSong: null,
-                    listToDelete: -100,
+                    listToDelete: payload.id,
                     currentPlayingListId: storeState.currentPlayingListId, // TODO help
                     currentPlayingListName: storeState.currentPlayingListName, //TODO what if
                 });
@@ -507,6 +511,26 @@ function GlobalStoreContextProvider({
                     currentPlayingListName: storeState.currentPlayingListName,
                 });
             }
+            case GlobalStoreActionType.SET_SCREEN_QUERY: {
+                return setStore({
+                    currentModal: storeState.currentModal,
+                    currentlyLoadedLists: storeState.currentlyLoadedLists,
+                    currentListId: storeState.currentListId,
+                    currentList: storeState.currentList,
+                    searchQuery: payload.query,
+                    currentScreen: payload.screen,
+                    currentPlayerTab: storeState.currentPlayerTab,
+                    sortOrder: storeState.sortOrder,
+                    listNameToEdit: -100,
+                    currentPlayingList: storeState.currentPlayingList,
+                    currentPlayingSongIndex: storeState.currentPlayingSongIndex,
+                    currentSongIndex: -100,
+                    currentSong: null,
+                    listToDelete: -100,
+                    currentPlayingListId: storeState.currentPlayingListId,
+                    currentPlayingListName: storeState.currentPlayingListName,
+                });
+            }
             default:
                 return storeState;
         }
@@ -572,64 +596,17 @@ function GlobalStoreContextProvider({
         }
     };
 
-    // THIS FUNCTION LOADS ALL THE ID, NAME PAIRS SO WE CAN LIST ALL THE LISTS
-    // const loadListsData = function (by: string = "self", search: string = "") {
-    //     let query;
-    //     if (by === "self") {
-    //         query = () => api.getUserLists(search);
-    //     } else if (by==="user"){
-    //         query = () => api.searchByUsername(search);
-    //     } else {
-    //         query = () => api.searchByPlaylist(search);
-    //     }
-    //     console.log(query);
-    //     query().then((response) => {
-    //         if (response.status === 200) {
-    //             console.log("ID PAIRS RESPONSE");
-    //             console.log(response);
-    //             let pairsArray = response.data.playlists;
-    //             storeReducer({
-    //                 type: GlobalStoreActionType.LOAD_ID_NAME_PAIRS,
-    //                 payload: {
-    //                     listsData: pairsArray,
-    //                 },
-    //             });
-    //         } else {
-    //             console.log("API FAILED TO GET THE LIST PAIRS");
-    //         }
-    //     });
-    // };
-
-    // THE FOLLOWING 5 FUNCTIONS ARE FOR COORDINATING THE DELETION
-    // OF A LIST, WHICH INCLUDES USING A VERIFICATION MODAL. THE
-    // FUNCTIONS ARE markListForDeletion, deleteList, deleteMarkedList,
-    // showDeleteListModal, and hideDeleteListModal
-    // store.markListForDeletion = function (id) {
-    //     async function getListToDelete(id) {
-    //         let response = await api.getPlaylistById(id);
-    //         if (response.data.success) {
-    //             let playlist = response.data.playlist;
-    //             storeReducer({
-    //                 type: GlobalStoreActionType.MARK_LIST_FOR_DELETION,
-    //                 payload: { id: id, playlist: playlist },
-    //             });
-    //         }
-    //     }
-    //     getListToDelete(id);
-    // };
-
-    // const showDeleteListModal = function (id: number) {};
     const deleteList = function (id: number) {
         api.deletePlaylistById(id).then((response) => {
-            if (response.data.success) {
+            if (response.status === 200) {
                 storeReducer({
-                    type: GlobalStoreActionType.DELETE_LIST,
-                    payload: storeState.currentlyLoadedLists.filter(
-                        (x) => x._id != id
-                    ),
+                    type: GlobalStoreActionType.LOAD_ID_NAME_PAIRS,
+                    payload: {
+                        listsData: store.store.currentlyLoadedLists.filter(
+                            (x) => x._id !== id
+                        ),
+                    },
                 });
-            } else {
-                alert("???? failed delete");
             }
         });
     };
@@ -943,6 +920,11 @@ function GlobalStoreContextProvider({
                 type: GlobalStoreActionType.EDIT_SONG,
                 payload: payload, //expects a song and songIndex
             });
+        } else if (modal === CurrentModal.DELETE_LIST) {
+            storeReducer({
+                type: GlobalStoreActionType.DELETE_LIST,
+                payload: payload, //expects an id
+            });
         } else {
             storeReducer({
                 type: GlobalStoreActionType.HIDE_MODALS,
@@ -951,34 +933,20 @@ function GlobalStoreContextProvider({
         }
     };
 
-    // store.canAddNewSong = function () {
-    //     return !store.isModalOpen() && store.currentList !== null;
-    // };
-    // const canUndo = function () {
-    //     return (
-    //         !store.isModalOpen() &&
-    //         store.currentList !== null &&
-    //         tps.hasTransactionToUndo()
-    //     );
-    // };
-    // const canRedo = function () {
-    //     return (
-    //         !store.isModalOpen() &&
-    //         store.currentList !== null &&
-    //         tps.hasTransactionToRedo()
-    //     );
-    // };
-    // const canClose = function () {
-    //     return !store.isModalOpen() && store.currentList !== null;
-    // };
-
-    // // THIS FUNCTION ENABLES THE PROCESS OF EDITING A LIST NAME
-    // store.setIsListNameEditActive = function () {
-    //     storeReducer({
-    //         type: GlobalStoreActionType.SET_LIST_NAME_EDIT_ACTIVE,
-    //         payload: null,
-    //     });
-    // };
+    const canUndo = function () {
+        return (
+            storeState.currentModal === CurrentModal.NONE &&
+            storeState.currentList !== null &&
+            tps.hasTransactionToUndo()
+        );
+    };
+    const canRedo = function () {
+        return (
+            storeState.currentModal === CurrentModal.NONE &&
+            storeState.currentList !== null &&
+            tps.hasTransactionToRedo()
+        );
+    };
 
     let resetState = function () {
         storeReducer({
@@ -988,12 +956,11 @@ function GlobalStoreContextProvider({
     };
 
     const getComments = () => {
-        return api.getComments(storeState.currentListId);
+        return api.getComments(storeState.currentPlayingListId);
     };
 
     const postComment = (comment: string) => {
-        alert("sending the comment " + comment);
-        return api.postComment(storeState.currentListId, comment);
+        return api.postComment(storeState.currentPlayingListId, comment);
     };
 
     const playSong = async (
@@ -1011,7 +978,8 @@ function GlobalStoreContextProvider({
 
                     return x;
                 });
-
+                // console.log("who is -100?");
+                // console.log(`${list}, ${ind}, ${id}, ${name}, ${loadedLists}`);
                 storeReducer({
                     type: GlobalStoreActionType.SET_PLAYING,
                     payload: {
@@ -1043,8 +1011,10 @@ function GlobalStoreContextProvider({
                     if (x._id == id) {
                         if (liked) {
                             x.userLiked = 1;
+                            x.upvotes++;
                         } else {
                             x.userDisliked = 1;
+                            x.downvotes++;
                         }
                     }
                     return x;
@@ -1097,6 +1067,16 @@ function GlobalStoreContextProvider({
         });
     };
 
+    const setScreenQuery = (screen: CurrentScreen, query: string) => {
+        storeReducer({
+            type: GlobalStoreActionType.SET_SCREEN_QUERY,
+            payload: {
+                query: query,
+                screen: screen,
+            },
+        });
+    };
+
     let store: Store = {
         store: storeState,
         changeListName: changeListName,
@@ -1133,6 +1113,9 @@ function GlobalStoreContextProvider({
         changeSortOrder: changeSortOrder,
         resetState: resetState,
         playId: playId,
+        setScreenQuery: setScreenQuery,
+        canUndo,
+        canRedo,
     };
 
     // GlobalStoreContext = createContext(store);

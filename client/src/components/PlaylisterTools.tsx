@@ -14,6 +14,7 @@ import PersonOutlined from "@mui/icons-material/PersonOutlined";
 import PeopleOutlined from "@mui/icons-material/PeopleOutlined";
 
 import Sort from "@mui/icons-material/Sort";
+import AuthContext from "../auth";
 
 import { useContext, useState } from "react";
 import GlobalStoreContext, { CurrentScreen, SortOrder } from "../store";
@@ -22,6 +23,7 @@ function PlaylisterTools() {
     const [query, setQuery] = useState("");
     const [anchorEl, setAnchorEl] = useState(null);
     const store = useContext(GlobalStoreContext);
+    const auth = useContext(AuthContext);
 
     let selfOrders = [
         ["By Name (A-Z)", SortOrder.NAME_ASC],
@@ -41,9 +43,14 @@ function PlaylisterTools() {
         store.changeSortOrder(order);
     };
 
+    console.log(
+        "RENDERING WITH SCREEN " + store.store.currentScreen + " SELECTED"
+    );
+
     return (
         <AppBar
             position="static"
+            color="transparent"
             // sx={{
             //     top: "56px",
             //     height: "64px",
@@ -78,6 +85,7 @@ function PlaylisterTools() {
                     aria-label="menu"
                     sx={{ mr: 2 }}
                     onClick={() => store.changeScreen(CurrentScreen.HOME)}
+                    disabled={auth.auth.isGuest}
                 >
                     {store.store.currentScreen === CurrentScreen.HOME ? (
                         <Home />
@@ -130,6 +138,7 @@ function PlaylisterTools() {
                             store.changeQuery(query);
                         }
                     }}
+                    value={query}
                 />
                 <Typography
                     sx={{

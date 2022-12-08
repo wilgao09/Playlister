@@ -1,5 +1,6 @@
 import AppBanner from "./AppBanner";
 import AuthContext from "../auth";
+import GlobalStoreContext from "../store";
 
 import Grid from "@mui/material/Grid";
 import ListItem from "@mui/material/ListItem";
@@ -22,6 +23,7 @@ function RegisterScreen() {
     const [fname, setFname] = useState("");
     const [lname, setLname] = useState("");
     const auth = useContext(AuthContext);
+    const store = useContext(GlobalStoreContext);
 
     let handle = (where: String) => {
         let fns: any = {
@@ -38,15 +40,16 @@ function RegisterScreen() {
 
     let handleLogin = () => {
         console.log(auth);
+        store.resetState();
         auth.registerUser(username, fname, lname, email, password, password2);
     };
     return (
         <>
-            <AppBanner />;
+            <AppBanner />
             <div
                 style={{
-                    height: "90%",
-                    backgroundColor: "blue",
+                    height: "95%",
+                    backgroundColor: "aliceblue",
                     width: "100%",
                     display: "flex",
                     flexDirection: "row",
@@ -65,23 +68,38 @@ function RegisterScreen() {
                         rowSpacing={0.5}
                     >
                         <Grid item xs={12}>
-                            {/* <ListItem> */}
-                            <Avatar
-                                sx={{
-                                    backgroundColor: "green",
+                            <div
+                                style={{
+                                    display: "flex",
+                                    justifyContent: "center",
                                 }}
                             >
-                                <Lock sx={{ color: "white" }} />
-                            </Avatar>
-                            {/* </ListItem> */}
+                                <Avatar
+                                    sx={{
+                                        backgroundColor: "purple",
+                                    }}
+                                >
+                                    <Lock sx={{ color: "white" }} />
+                                </Avatar>
+                            </div>
                         </Grid>
-                        //TODO: center
+
                         <Grid item xs={12}>
-                            <ListItem>
-                                <div style={{ textAlign: "center" }}>
+                            <div
+                                style={{
+                                    display: "flex",
+                                    justifyContent: "center",
+                                }}
+                            >
+                                <div
+                                    style={{
+                                        display: "inline",
+                                        fontSize: "24pt",
+                                    }}
+                                >
                                     REGISTER
                                 </div>
-                            </ListItem>
+                            </div>
                         </Grid>
                         <Grid item xs={12}>
                             <ListItem>
@@ -130,6 +148,7 @@ function RegisterScreen() {
                                     variant="outlined"
                                     fullWidth
                                     onChange={handle("pwd")}
+                                    type="password"
                                 />
                             </ListItem>
                         </Grid>
@@ -140,6 +159,7 @@ function RegisterScreen() {
                                     variant="outlined"
                                     fullWidth
                                     onChange={handle("pwd2")}
+                                    type="password"
                                 />
                             </ListItem>
                         </Grid>

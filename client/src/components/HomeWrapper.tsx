@@ -72,7 +72,8 @@ function HomeWrapper(): JSX.Element {
                     variant="contained"
                     size="small"
                     onClick={() => {
-                        navigate("/playlister");
+                        auth.asGuest();
+                        navigate("/");
                     }}
                 >
                     {" "}

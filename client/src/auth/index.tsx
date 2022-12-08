@@ -18,9 +18,7 @@ let initContext: Auth = {
         email: string,
         password: string,
         passwordVerify: string
-    ) => {
-        alert("shit");
-    },
+    ) => {},
     loginUser: (email: string, password: string) => {},
     logoutUser: () => {},
     getUserInitials: () => "",
@@ -28,6 +26,7 @@ let initContext: Auth = {
     popupError: (e: string) => {},
     closeError: () => {},
     getError: () => "",
+    asGuest: () => {},
 };
 
 let AuthContext: React.Context<Auth> = createContext(initContext);
@@ -40,6 +39,7 @@ interface Action {
     REGISTER_USER: string;
     FAILED_OPERATION: string;
     RESET_FAILED_OPERATION: string;
+    CONTINUE_AS_GUEST: string;
 }
 
 export const AuthActionType: Action = {
@@ -49,6 +49,7 @@ export const AuthActionType: Action = {
     REGISTER_USER: "REGISTER_USER",
     FAILED_OPERATION: "FAILED_OPERATION",
     RESET_FAILED_OPERATION: "LOGOUT_USER",
+    CONTINUE_AS_GUEST: "CONTINUE_AS_GUEST",
 };
 
 function AuthContextProvider({ children }: JSX.ElementChildrenAttribute) {
@@ -112,7 +113,15 @@ function AuthContextProvider({ children }: JSX.ElementChildrenAttribute) {
                     isGuest: false,
                 });
             }
-            //TODO: proceed as guest
+            case AuthActionType.CONTINUE_AS_GUEST: {
+                return setAuth({
+                    user: null,
+                    loggedIn: false,
+                    failedLogin: false,
+                    failedRegister: false,
+                    isGuest: true,
+                });
+            }
             default:
                 return authState;
         }
@@ -170,12 +179,7 @@ function AuthContextProvider({ children }: JSX.ElementChildrenAttribute) {
                 }
             })
             .catch((reason) => {
-                authReducer({
-                    type: AuthActionType.FAILED_OPERATION,
-                    payload: {
-                        failedRegister: reason.response.data.errorMessage,
-                    },
-                });
+                popupError(reason.response.data.errorMessage);
             });
     };
 
@@ -195,10 +199,7 @@ function AuthContextProvider({ children }: JSX.ElementChildrenAttribute) {
                 }
             })
             .catch((reason) => {
-                authReducer({
-                    type: AuthActionType.FAILED_OPERATION,
-                    payload: { failedLogin: reason.response.data.errorMessage },
-                });
+                popupError(reason.response.data.errorMessage);
             });
     };
 
@@ -242,6 +243,13 @@ function AuthContextProvider({ children }: JSX.ElementChildrenAttribute) {
         return popup;
     };
 
+    const asGuest = () => {
+        authReducer({
+            type: AuthActionType.CONTINUE_AS_GUEST,
+            payload: {},
+        });
+    };
+
     const auth: Auth = {
         auth: authState,
         getLoggedIn: getLoggedIn,
@@ -253,6 +261,7 @@ function AuthContextProvider({ children }: JSX.ElementChildrenAttribute) {
         popupError,
         closeError,
         getError,
+        asGuest,
     };
 
     useEffect(() => {

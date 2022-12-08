@@ -70,7 +70,7 @@ function AppBanner() {
                 <MenuItem onClick={handleMenuClose}>Login</MenuItem>
             </Link>
 
-            <Link to="register">
+            <Link to="/register/">
                 <MenuItem onClick={handleMenuClose}>
                     Create New Account
                 </MenuItem>
@@ -138,7 +138,9 @@ function AppBanner() {
                 <h3
                     className={`${PlaylisterLogo["playlister-logo"]} ${AppBannerStyle["logo-styling"]}`}
                 >
-                    Playlister
+                    <Link style={{}} to="/">
+                        Playlister
+                    </Link>
                 </h3>
 
                 <IconButton

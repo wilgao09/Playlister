@@ -1,9 +1,10 @@
 import PlayerTabsStyle from "./PlayerTabs.module.css";
 import TextField from "@mui/material/TextField";
 import IconButton from "@mui/material/IconButton";
-import GlobalStoreContext from "../store";
+import GlobalStoreContext, { CurrentScreen } from "../store";
+import AuthContext from "../auth";
 
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import YouTube, { YouTubePlayer } from "react-youtube";
 import Typography from "@mui/material/Typography";
 import { Link } from "react-router-dom";
@@ -25,6 +26,7 @@ export default function () {
     const [ytref, setYtref] = useState<YouTubePlayer | null>(null);
     const [autoplayNext, setAutoplayNext] = useState(false);
     const store = useContext(GlobalStoreContext);
+    const auth = useContext(AuthContext);
     let panel = null;
     console.log("VV YOUTUBE");
     console.log(ytref);
@@ -38,20 +40,28 @@ export default function () {
                 .youTubeId
         );
     }
+
+    // useEffect(() => {
     if (
-        store.store.currentPlayingListId === store.store.currentListId &&
+        // store.store.currentPlayingListId === store.store.currentListId &&
         store.store.currentPlayingListId > -1
     ) {
         let isPublished = store.store.currentlyLoadedLists.filter(
-            (x) => x._id === store.store.currentListId
-        )[0].published;
-        if (published !== isPublished) {
-            setPublished(isPublished);
+            (x) => x._id === store.store.currentPlayingListId
+        );
+        if (isPublished.length > 1) {
+            let p = isPublished[0].published;
+            if (published !== p) {
+                setPublished(p);
+            }
         }
-        if (autoplayNext) {
-            setAutoplayNext(false);
-        }
+
+        // if (autoplayNext) {
+        //     setAutoplayNext(false);
+        // }
     }
+    // });
+
     const onEndHandler = () => {
         let nind = store.store.currentPlayingSongIndex + 1;
         setAutoplayNext(true);
@@ -165,9 +175,9 @@ export default function () {
                                     ytref.pauseVideo();
                                 }
                             }}
-                            disabled={
-                                ytref === null || ytref.getPlayerState() === 1
-                            }
+                            // disabled={
+                            //     ytref === null || ytref.getPlayerState() === 1
+                            // }
                         >
                             <Pause />
                         </IconButton>
@@ -177,9 +187,9 @@ export default function () {
                                     ytref.playVideo();
                                 }
                             }}
-                            disabled={
-                                ytref === null || ytref.getPlayerState() === 0
-                            }
+                            // disabled={
+                            //     ytref === null || ytref.getPlayerState() === 0
+                            // }
                         >
                             <PlayArrow />
                         </IconButton>
@@ -195,10 +205,10 @@ export default function () {
                                     );
                                 }
                             }}
-                            disabled={
-                                store.store.currentPlayingSongIndex >=
-                                store.store.currentPlayingList.length - 1
-                            }
+                            // disabled={
+                            //     store.store.currentPlayingSongIndex >=
+                            //     store.store.currentPlayingList.length - 1
+                            // }
                         >
                             <FastForward />
                         </IconButton>
@@ -224,10 +234,21 @@ export default function () {
                 >
                     {comments.map((x) => (
                         <div className={PlayerTabsStyle["comment"]}>
-                            <div className={PlayerTabsStyle["username"]}>
+                            <div
+                                className={PlayerTabsStyle["username"]}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    store.setScreenQuery(
+                                        CurrentScreen.USERS,
+                                        x.username
+                                    );
+                                }}
+                            >
                                 {x.username}
                             </div>
-                            <div>{x.comment}</div>
+                            <div style={{ wordWrap: "break-word" }}>
+                                {x.comment}
+                            </div>
                         </div>
                     ))}
                 </div>
@@ -243,7 +264,7 @@ export default function () {
                     }}
                     onChange={(e) => setUserComment(e.target.value)}
                     value={userComment}
-                    disabled={!published}
+                    disabled={!published || auth.auth.isGuest}
                 ></TextField>
             </div>
         );
@@ -264,6 +285,13 @@ export default function () {
                 <div
                     className={PlayerTabsStyle["tab"]}
                     onClick={() => handleClick(0)}
+                    style={
+                        tabval === 0
+                            ? {
+                                  backgroundColor: "rgb(150, 150, 150)",
+                              }
+                            : {}
+                    }
                 >
                     <div>Player</div>
                 </div>
@@ -271,6 +299,13 @@ export default function () {
                     <div
                         className={PlayerTabsStyle["tab"]}
                         onClick={() => handleClick(1)}
+                        style={
+                            tabval === 1
+                                ? {
+                                      backgroundColor: "rgb(150, 150, 150)",
+                                  }
+                                : {}
+                        }
                     >
                         <div>Comments</div>
                     </div>

@@ -3,12 +3,12 @@ import AddIcon from "@mui/icons-material/Add";
 import Typography from "@mui/material/Typography";
 
 import GlobalStoreContext, { CurrentScreen } from "../store";
-
+import AuthContext from "../auth";
 import { useContext } from "react";
 
 function WorkspaceBar() {
     const store = useContext(GlobalStoreContext);
-
+    const auth = useContext(AuthContext);
     switch (store.store.currentScreen) {
         case CurrentScreen.HOME: {
             return (
@@ -18,6 +18,7 @@ function WorkspaceBar() {
                         color="primary"
                         aria-label="add"
                         onClick={() => store.createNewList()}
+                        disabled={auth.auth.isGuest}
                     >
                         <AddIcon />
                     </Fab>

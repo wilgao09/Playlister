@@ -452,8 +452,12 @@ const userPlaying = (req, res) => {
 };
 
 const postComment = (req, res, next) => {
-    if (!req.username || !req.params.id) {
+    if (!req.username || !req.params.id || !req.body.comment) {
         return res.status(400).json({ err: "Missing information" });
+    }
+
+    if (req.body.comment.length > 255) {
+        req.body.comment = req.body.comment.slice(0, 255);
     }
 
     Playlist.findByPk(req.params.id)

@@ -13,7 +13,7 @@
 import axios from "axios";
 //TODO: fix
 const config = {
-    apiPort: "6689",
+    apiPort: "4000",
     apiDomain: "localhost",
 };
 axios.defaults.withCredentials = true;

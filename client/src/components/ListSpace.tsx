@@ -40,7 +40,9 @@ function ListSpace() {
             break;
         }
         case SortOrder.PUBLISH_DESC: {
-            lambda = (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime();
+            lambda = (a, b) =>
+                new Date(b.updatedAt).getTime() -
+                new Date(a.updatedAt).getTime();
             break;
         }
         case SortOrder.LISTEN_DESC: {
@@ -56,11 +58,15 @@ function ListSpace() {
             break;
         }
         case SortOrder.CREATE_ASC: {
-            lambda = (a, b) => a.createdAt.getTime() - b.createdAt.getTime();
+            lambda = (a, b) =>
+                new Date(a.createdAt).getTime() -
+                new Date(b.createdAt).getTime();
             break;
         }
         case SortOrder.EDIT_ASC: {
-            lambda = (a, b) => a.updatedAt.getTime() - b.updatedAt.getTime();
+            lambda = (a, b) =>
+                new Date(a.updatedAt).getTime() -
+                new Date(b.updatedAt).getTime();
             break;
         }
     }

@@ -7,8 +7,8 @@ interface SongList {
     _id: number;
     name: string;
     listens: number;
-    published: boolean; //TODO: create a publishedDate for backend and frontend
-    createdAt: Date; // maybe repurpose this?
+    published: boolean;
+    createdAt: Date;
     updatedAt: Date;
     owner: string;
     upvotes: number;
@@ -63,6 +63,7 @@ interface Auth {
     popupError: (e: string) => void;
     closeError: () => void;
     getError: () => string;
+    asGuest: () => void;
 }
 
 interface StoreState {
@@ -120,6 +121,9 @@ interface Store {
     changeSortOrder: (m: SortOrder) => void;
     resetState: () => void;
     playId: (id: number) => void;
+    setScreenQuery: (screen: CurrentScreen, query: string) => void;
+    canUndo: () => boolean;
+    canRedo: () => boolean;
 }
 
 interface Transaction {

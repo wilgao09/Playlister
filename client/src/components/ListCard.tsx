@@ -16,7 +16,7 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import ListCardStyle from "./ListCard.module.css";
 
 import { useContext, useEffect, useState } from "react";
-import GlobalStoreContext from "../store";
+import GlobalStoreContext, { CurrentScreen } from "../store";
 import SongEditSpace from "./SongEditSpace";
 import AuthContext from "../auth";
 
@@ -68,7 +68,7 @@ function ListCard(props: SongList) {
                     store.playId(props._id);
                 }}
             >
-                <Grid item xs={12}>
+                <Grid item xs={12} onClick={(e) => e.stopPropagation()}>
                     {nameEdit ? (
                         <TextField
                             fullWidth
@@ -159,6 +159,7 @@ function ListCard(props: SongList) {
                         e.stopPropagation();
                         store.likePlaylist(props._id, true);
                     }}
+                    disabled={auth.auth.isGuest}
                 >
                     {props.userLiked === 1 ? (
                         <ThumbUpAltIcon></ThumbUpAltIcon>
@@ -174,6 +175,7 @@ function ListCard(props: SongList) {
                         e.stopPropagation();
                         store.likePlaylist(props._id, false);
                     }}
+                    disabled={auth.auth.isGuest}
                 >
                     {props.userDisliked === 1 ? (
                         <ThumbDownAltIcon></ThumbDownAltIcon>
@@ -184,7 +186,14 @@ function ListCard(props: SongList) {
                 {props.downvotes}
             </Grid>
             <Grid item xs={12}>
-                By: {props.owner}
+                <span
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        store.setScreenQuery(CurrentScreen.USERS, props.owner);
+                    }}
+                >
+                    By: {props.owner}
+                </span>
             </Grid>
             <Grid item xs={7}>
                 <>Published: {props.updatedAt} </>

@@ -51,6 +51,10 @@ function SongEditSpace(props: SongEditProps) {
         );
     };
 
+    let isPlaying = (ind: number) =>
+        store.store.currentListId === store.store.currentPlayingListId &&
+        ind === store.store.currentPlayingSongIndex;
+
     if (!props.published) {
         //TODO: test drag
         body = store.store.currentList.map((x, i) => (
@@ -62,10 +66,6 @@ function SongEditSpace(props: SongEditProps) {
                 onDragEnd={() => swapHandler()}
                 draggable={true}
                 onDoubleClick={() => {
-                    // store.raiseModal(CurrentModal.EDIT_SONG, {
-                    //     song: x,
-                    //     songIndex: i,
-                    // });
                     store.showEditSongModal(i, x);
                 }}
                 onClick={(e) => {
@@ -73,14 +73,29 @@ function SongEditSpace(props: SongEditProps) {
                     handlePlay(i);
                 }}
             >
-                {1 + i}. {x.title} by {x.artist}
-                {/* the lambda deletes */}
-                <Button
-                    sx={{ float: "right" }}
-                    onClick={() => store.removeSong(i)}
+                <div
+                    style={
+                        isPlaying(i)
+                            ? {
+                                  backgroundColor: "aliceblue",
+                                  borderRadius: "8px",
+                                  padding: "8px",
+                              }
+                            : {}
+                    }
                 >
-                    X
-                </Button>
+                    {1 + i}. {x.title} by {x.artist}
+                    {/* the lambda deletes */}
+                    <Button
+                        sx={{ float: "right" }}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            store.showRemoveSongModal(i, x);
+                        }}
+                    >
+                        X
+                    </Button>
+                </div>
             </div>
         ));
         body.push(
@@ -97,15 +112,27 @@ function SongEditSpace(props: SongEditProps) {
         );
     } else {
         body = store.store.currentList.map((x, i) => (
-            <div
-                key={x.title + i}
-                onClick={() => {
-                    handlePlay(i);
-                }}
-            >
-                <Typography>
-                    {i + 1}. {x.title} by {x.artist}
-                </Typography>
+            <div key={x.title + i}>
+                <div
+                    style={
+                        isPlaying(i)
+                            ? {
+                                  backgroundColor: "aliceblue",
+                                  borderRadius: "8px",
+                                  padding: "8px",
+                                  color: "indigo",
+                              }
+                            : {}
+                    }
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        handlePlay(i);
+                    }}
+                >
+                    <Typography>
+                        {i + 1}. {x.title} by {x.artist}
+                    </Typography>
+                </div>
             </div>
         ));
         body = [
@@ -119,7 +146,12 @@ function SongEditSpace(props: SongEditProps) {
     }
 
     return (
-        <div className={SongEditSpaceStyle["flex-container"]}>
+        <div
+            className={SongEditSpaceStyle["flex-container"]}
+            onClick={(e) => {
+                e.stopPropagation();
+            }}
+        >
             {body}
             <SongEditTools published={props.published} />
         </div>

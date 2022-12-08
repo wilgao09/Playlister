@@ -1,5 +1,6 @@
 import AppBanner from "./AppBanner";
 import AuthContext from "../auth";
+import GlobalStoreContext from "../store";
 
 import Grid from "@mui/material/Grid";
 import ListItem from "@mui/material/ListItem";
@@ -7,17 +8,17 @@ import Avatar from "@mui/material/Avatar";
 import Lock from "@mui/icons-material/Lock";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
-
+import Typography from "@mui/material/Typography";
 import LoginScreenStyle from "./LoginScreen.module.css";
 
 import { Link } from "react-router-dom";
 import { useState, useContext } from "react";
-import { Password } from "@mui/icons-material";
 
 function LoginScreen() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const auth = useContext(AuthContext);
+    const store = useContext(GlobalStoreContext);
 
     let onInputChange = (isEmail: boolean) => {
         if (isEmail) {
@@ -34,14 +35,15 @@ function LoginScreen() {
 
     let handleLogin = () => {
         auth.loginUser(email, password);
+        store.resetState();
     };
     return (
         <>
-            <AppBanner />;
+            <AppBanner />
             <div
                 style={{
-                    height: "90%",
-                    backgroundColor: "blue",
+                    height: "95%",
+                    backgroundColor: "aliceblue",
                     width: "100%",
                     display: "flex",
                     flexDirection: "row",
@@ -60,23 +62,37 @@ function LoginScreen() {
                         }}
                     >
                         <Grid item xs={12}>
-                            {/* <ListItem> */}
-                            <Avatar
-                                sx={{
-                                    backgroundColor: "green",
+                            <div
+                                style={{
+                                    display: "flex",
+                                    justifyContent: "center",
                                 }}
                             >
-                                <Lock sx={{ color: "white" }} />
-                            </Avatar>
-                            {/* </ListItem> */}
+                                <Avatar
+                                    sx={{
+                                        backgroundColor: "purple",
+                                    }}
+                                >
+                                    <Lock sx={{ color: "white" }} />
+                                </Avatar>
+                            </div>
                         </Grid>
-                        //TODO: center
                         <Grid item xs={12}>
-                            <ListItem>
-                                <div style={{ textAlign: "center" }}>
+                            <div
+                                style={{
+                                    display: "flex",
+                                    justifyContent: "center",
+                                }}
+                            >
+                                <div
+                                    style={{
+                                        display: "inline",
+                                        fontSize: "24pt",
+                                    }}
+                                >
                                     SIGN IN
                                 </div>
-                            </ListItem>
+                            </div>
                         </Grid>
                         <Grid item xs={12}>
                             <ListItem>
@@ -95,6 +111,10 @@ function LoginScreen() {
                                     variant="outlined"
                                     fullWidth
                                     onChange={onInputChange(false)}
+                                    // ref="password"
+                                    // hintText="Password"
+                                    // floatingLabelText="Password"
+                                    type="password"
                                 />
                             </ListItem>
                         </Grid>

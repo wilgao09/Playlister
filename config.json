@@ -1,5 +1,5 @@
 {
-    "apiPort": "6689",
+    "apiPort": "4000",
     "usingMySQL": true,
     "jwtSecret": ":r(4[CaQ3`N<#8EV~7<K75Rd/ZpfzBkv`m-x]+QnjQcXazr%w;",
     "databasePassword": "toor",
