@@ -176,7 +176,7 @@ function RegisterScreen() {
                         </Grid>
                         <Grid item xs={12}>
                             <ListItem>
-                                <Link to="/login">
+                                <Link to="/playlister/login">
                                     Have an account already?
                                 </Link>
                             </ListItem>

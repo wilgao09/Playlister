@@ -27,9 +27,15 @@ const App = (): JSX.Element => {
                 <GlobalStoreContextProvider>
                     {/* <AppBanner /> */}
                     <Routes>
-                        <Route path="/" element={<HomeWrapper />} />
-                        <Route path="/login/" element={<LoginScreen />} />
-                        <Route path="/register/" element={<RegisterScreen />} />
+                        <Route path="/playlister/" element={<HomeWrapper />} />
+                        <Route
+                            path="/playlister/login/"
+                            element={<LoginScreen />}
+                        />
+                        <Route
+                            path="/playlister/register/"
+                            element={<RegisterScreen />}
+                        />
                     </Routes>
                     {/* <Statusbar /> */}
                 </GlobalStoreContextProvider>

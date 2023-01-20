@@ -707,9 +707,9 @@ function GlobalStoreContextProvider({
     //TODO: elegant
     const reloadLists = function () {
         let req;
-        if (storeState.currentScreen == CurrentScreen.HOME) {
+        if (storeState.currentScreen === CurrentScreen.HOME) {
             req = () => api.getUserLists(storeState.searchQuery);
-        } else if (storeState.currentScreen == CurrentScreen.PLAYLISTS) {
+        } else if (storeState.currentScreen === CurrentScreen.PLAYLISTS) {
             req = () => api.searchByPlaylist(storeState.searchQuery);
         } else {
             req = () => api.searchByUsername(storeState.searchQuery);

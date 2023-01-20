@@ -66,11 +66,11 @@ function AppBanner() {
             open={isMenuOpen}
             onClose={handleMenuClose}
         >
-            <Link to="/login/">
+            <Link to="/playlister/login/">
                 <MenuItem onClick={handleMenuClose}>Login</MenuItem>
             </Link>
 
-            <Link to="/register/">
+            <Link to="/playlister/register/">
                 <MenuItem onClick={handleMenuClose}>
                     Create New Account
                 </MenuItem>
@@ -138,7 +138,7 @@ function AppBanner() {
                 <h3
                     className={`${PlaylisterLogo["playlister-logo"]} ${AppBannerStyle["logo-styling"]}`}
                 >
-                    <Link style={{}} to="/">
+                    <Link style={{}} to="/playlister/">
                         Playlister
                     </Link>
                 </h3>

@@ -14,12 +14,11 @@ import axios from "axios";
 // import config from "../../config.json";
 //TODO: fix
 const config = {
-    apiPort: "4000",
-    apiDomain: "localhost",
+    apiDomain: "https://williamgao09.com/api/playlister",
 };
 axios.defaults.withCredentials = true;
 const api = axios.create({
-    baseURL: `http://${config.apiDomain}:${config.apiPort}/auth`,
+    baseURL: `${config.apiDomain}/auth`,
 });
 
 // THESE ARE ALL THE REQUESTS WE`LL BE MAKING, ALL REQUESTS HAVE A

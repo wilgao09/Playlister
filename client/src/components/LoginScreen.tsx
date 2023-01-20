@@ -131,7 +131,7 @@ function LoginScreen() {
                         </Grid>
                         <Grid item xs={12}>
                             <ListItem>
-                                <Link to="/register">
+                                <Link to="/playlister/register">
                                     Dont have an account?
                                 </Link>
                             </ListItem>

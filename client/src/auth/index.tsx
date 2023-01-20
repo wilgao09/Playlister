@@ -173,7 +173,7 @@ function AuthContextProvider({ children }: JSX.ElementChildrenAttribute) {
                             user: response.data.user,
                         },
                     });
-                    history("/");
+                    history("/playlister/");
                 } else {
                     alert("got non failnig non 200 response code");
                 }
@@ -193,7 +193,7 @@ function AuthContextProvider({ children }: JSX.ElementChildrenAttribute) {
                             user: response.data.user,
                         },
                     });
-                    history("/");
+                    history("/playlister/");
                 } else {
                     alert("got a nonfailing, non 200 code");
                 }
@@ -210,7 +210,7 @@ function AuthContextProvider({ children }: JSX.ElementChildrenAttribute) {
                 type: AuthActionType.LOGOUT_USER,
                 payload: null,
             });
-            history("/");
+            history("/playlister/");
         }
     };
 

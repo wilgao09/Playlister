@@ -52,7 +52,7 @@ function HomeWrapper(): JSX.Element {
                     variant="contained"
                     size="small"
                     onClick={() => {
-                        navigate("/register");
+                        navigate("/playlister/register");
                     }}
                 >
                     {" "}
@@ -62,7 +62,7 @@ function HomeWrapper(): JSX.Element {
                     variant="contained"
                     size="small"
                     onClick={() => {
-                        navigate("/login");
+                        navigate("/playlister/login");
                     }}
                 >
                     {" "}
@@ -73,7 +73,7 @@ function HomeWrapper(): JSX.Element {
                     size="small"
                     onClick={() => {
                         auth.asGuest();
-                        navigate("/");
+                        navigate("/playlister/");
                     }}
                 >
                     {" "}
